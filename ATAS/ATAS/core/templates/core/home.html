@@ -1,0 +1,65 @@
+{% extends 'core/admin_base.html' %} 
+
+{% block title %}Dashboard - ATAS{% endblock %}
+
+{% block page_title %}System Overview{% endblock %}
+
+{% block content %}
+<div class="row mb-5">
+    <div class="col-md-12">
+        <h1 class="display-6 fw-bold text-dark">Welcome to Academic Tracking & Alert System</h1>
+        <p class="text-muted">Your centralized platform for managing supplementary exam eligibility and deadlines.</p>
+    </div>
+</div>
+
+<div class="row g-4 mb-5">
+    <div class="col-lg-4 col-md-6">
+        <div class="card shadow-sm border-0 h-100">
+            <div class="card-body p-4 text-center">
+                <i class="bi bi-people-fill text-primary display-4 mb-2"></i>
+                <h5 class="card-title text-muted text-uppercase mb-1">Total Students Enrolled</h5>
+                <h2 class="display-5 fw-bold text-primary">{{ total_students|default:0 }}</h2>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4 col-md-6">
+        <div class="card shadow-sm border-warning h-100">
+            <div class="card-body p-4 text-center bg-warning-subtle">
+                <i class="bi bi-exclamation-triangle-fill text-warning display-4 mb-2"></i>
+                <h5 class="card-title text-muted text-uppercase mb-1">Students Requiring Compartment</h5>
+                <h2 class="display-5 fw-bold text-warning">{{ compartment_students|default:0 }}</h2>
+                <a href="{% url 'compartment_students' %}" class="btn btn-sm btn-outline-warning mt-2">View List</a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4 col-md-6">
+        <div class="card shadow-sm border-success h-100">
+            <div class="card-body p-4 text-center">
+                <i class="bi bi-calendar-check-fill text-success display-4 mb-2"></i>
+                <h5 class="card-title text-muted text-uppercase mb-1">Upcoming Deadlines</h5>
+                <h2 class="display-5 fw-bold text-success">{{ active_deadlines|default:0 }}</h2>
+                <a href="{% url 'set_deadline' %}" class="btn btn-sm btn-outline-success mt-2">Manage Deadlines</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-md-12">
+        <div class="p-4 border rounded bg-light">
+            <h3 class="h4 mb-3 fw-bold">System Actions</h3>
+            <p class="text-muted">Use these buttons to quickly manage the core functions of the system.</p>
+            <div class="d-grid gap-2 d-md-flex justify-content-md-start pt-2">
+                <a href="{% url 'upload_gpa' %}" class="btn btn-primary btn-lg shadow-sm">
+                    <i class="bi bi-file-earmark-arrow-up me-2"></i> Upload New GPA Sheet
+                </a>
+                <a href="{% url 'set_deadline' %}" class="btn btn-success btn-lg shadow-sm">
+                    <i class="bi bi-bell me-2"></i> Schedule Notification Alerts
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

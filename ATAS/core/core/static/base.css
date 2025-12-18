@@ -1,0 +1,133 @@
+/* --- 1. Base Variables & Typography --- */
+:root {
+    --primary-color: #007bff;
+    --primary-dark: #0056b3;
+    --secondary-bg: #f4f7f9;
+    --sidebar-bg: #ffffff;
+    --text-color: #34495e;
+    --border-color: #e0e0e0;
+    --sidebar-width: 250px;
+}
+
+/* Force Reset Default Margins/Paddings */
+html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%; /* Use height 100% to ensure full vertical coverage */
+    overflow-x: hidden; /* Prevent horizontal scroll bar from margin issues */
+    font-family: 'Inter', sans-serif, system-ui;
+    background-color: var(--secondary-bg);
+    color: var(--text-color);
+}
+
+/* --- 2. Layout & Sidebar (Managed Look) --- */
+
+/* Full Screen Wrapper */
+#wrapper {
+    display: flex;
+    min-height: 100vh; /* Use min-height for pages with less content */
+    height: 100%; /* Ensure max coverage for pages with lots of content */
+    transition: margin 0.3s ease-in-out;
+}
+
+/* Sidebar Styling: Fixed and Managed */
+#sidebar-wrapper {
+    width: var(--sidebar-width);
+    position: fixed;
+    height: 100vh; /* Sidebar covers 100% viewport height, stable */
+    z-index: 1000;
+    margin-left: calc(0px - var(--sidebar-width));
+    transition: margin 0.3s ease-in-out;
+    background-color: var(--sidebar-bg);
+    border-right: 1px solid var(--border-color);
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.05);
+    display: flex; /* Use flex to manage inner content (heading, links) */
+    flex-direction: column;
+}
+
+.sidebar-heading {
+    flex-shrink: 0; /* Prevents heading from shrinking */
+    padding: 1.5rem 1.25rem;
+    font-size: 1.4rem;
+    border-bottom: 1px solid var(--border-color);
+    color: var(--primary-color);
+    font-weight: 700;
+}
+
+.list-group-flush {
+    flex-grow: 1; /* Allows links list to take up remaining height */
+    overflow-y: auto; /* Scrollable list for many links */
+    padding-bottom: 20px;
+}
+
+/* (Sidebar Link Styles remain the same) */
+.list-group-item {
+    border: none;
+    padding: 14px 20px;
+    font-size: 0.95rem;
+    color: var(--text-color);
+    transition: all 0.2s ease-in-out;
+}
+.list-group-item.active {
+    /* ... (active styles) ... */
+    border-left: 5px solid var(--primary-dark);
+}
+
+
+/* --- 3. Main Content Wrapper (Covers Full Remaining Screen) --- */
+
+#page-content-wrapper {
+    /* Use padding-left instead of margin-left for better layout control */
+    padding-left: var(--sidebar-width); 
+    width: 100%; 
+    transition: padding 0.3s ease-in-out;
+    min-height: 100vh;
+    background-color: var(--secondary-bg); 
+}
+
+/* Fix for Header: Make it sticky within the main content flow */
+#page-content-wrapper .navbar {
+    position: sticky;
+    top: 0;
+    z-index: 999;
+    /* Ensure the header takes the full available width of its container */
+    width: 100%; 
+    box-sizing: border-box; /* Include padding/border in the element's total width/height */
+}
+
+/* Fix for Content Body: Use padding/margin to manage space */
+#page-content-wrapper .container-fluid {
+    /* Reset Bootstrap's default excessive horizontal padding if needed, but keeping it usually works fine */
+    padding-left: 1.5rem; 
+    padding-right: 1.5rem;
+}
+
+/* --- 4. Toggle States (Responsive & Sleek) --- */
+
+/* When toggled (sidebar visible) */
+#wrapper.toggled #sidebar-wrapper {
+    margin-left: 0;
+}
+
+/* When toggled (content shifts) */
+#wrapper.toggled #page-content-wrapper {
+    /* Content wrapper should have 0 padding-left when sidebar is toggled out */
+    padding-left: 0;
+}
+
+
+/* --- 5. Responsive Adjustment (Crucial for Mobile) --- */
+
+@media (max-width: 992px) {
+    /* On smaller screens, sidebar is hidden by default */
+    #sidebar-wrapper {
+        margin-left: calc(0px - var(--sidebar-width));
+        position: fixed;
+    }
+    
+    #page-content-wrapper {
+        padding-left: 0; /* No padding needed when sidebar is hidden */
+        width: 100%;
+    }
+}

@@ -1,0 +1,27 @@
+Subject: URGENT: Compartment Exam Form Deadline - {{ deadline.cycle_name }}
+
+Dear {{ student_name }} (Reg No: {{ reg_no }}),
+
+This is an automated and urgent notification from the Academic Tracking & Alert System (ATAS).
+
+Our records indicate that you have one or more subjects pending clearance from your Semester {{ deadline.semester_affected }} exams, making you eligible for the upcoming compartment/supplementary examination cycle.
+
+----------------------------------------------------
+‼️ FINAL DEADLINE TO SUBMIT THE EXAM FORM:
+   {{ deadline.form_deadline|date:"l, F d, Y" }}
+   (This is 7 days from today: {{ today|date:"F d, Y" }})
+----------------------------------------------------
+
+Pending Subjects:
+{% for record in records %}
+  - Subject Code: {{ record.subject_code }} (Grade: {{ record.grade }})
+{% endfor %}
+
+Please contact the Examinations Office IMMEDIATELY to obtain and submit your compartment exam form before the deadline.
+
+Failure to submit the form by the specified deadline may result in a delay in your graduation.
+
+This message was sent automatically. Please do not reply to this email.
+
+Sincerely,
+The Academic Administration Team
