@@ -1,0 +1,40 @@
+/* Sidebar Styling - Force Visibility */
+#wrapper { 
+    display: flex; 
+    width: 100%; 
+}
+
+#sidebar-wrapper {
+    min-height: 100vh;
+    width: 280px;
+    background: #1a1d20 !important; /* Deep dark background */
+    border-right: 1px solid #2d3238;
+}
+
+#sidebar-wrapper .sidebar-heading {
+    padding: 2rem 1.5rem;
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #ffffff !important; /* Bright white title */
+    background: #141619;
+}
+
+#sidebar-wrapper .list-group-item {
+    background-color: transparent !important;
+    color: #cbd5e0 !important; /* Light grey text */
+    border: none;
+    padding: 1rem 1.5rem;
+    font-weight: 500;
+    transition: all 0.2s;
+}
+
+#sidebar-wrapper .list-group-item:hover {
+    color: #ffffff !important; /* Pure white on hover */
+    background-color: #2d3238 !important; /* Slightly lighter highlight */
+    padding-left: 2rem;
+}
+
+#sidebar-wrapper .list-group-item i {
+    margin-right: 10px;
+    color: #3b82f6; /* Blue icons for pro look */
+}

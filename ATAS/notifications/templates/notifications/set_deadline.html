@@ -1,86 +1,65 @@
-{% extends 'core/admin_base.html' %} 
-
-{% block title %}Manage Deadlines{% endblock %}
-{% block page_title %}Manage Exam Deadlines{% endblock %}
+{% extends 'core/admin_base.html' %}
 
 {% block content %}
 <div class="row">
-    <div class="col-lg-5 mb-4">
-        <div class="card shadow-sm border-primary h-100">
-            <div class="card-header bg-primary text-white fw-bold">
-                <i class="bi bi-calendar-plus me-2"></i> Schedule New Deadline
-            </div>
+    <div class="col-md-5">
+        <div class="card shadow border-0">
+            <div class="card-header bg-white fw-bold text-primary">Schedule New Alert Cycle</div>
             <div class="card-body">
-                <form method="post">
+                <form method="POST">
                     {% csrf_token %}
-
-                    {% for field in form %}
-                        <div class="mb-3">
-                            <label for="{{ field.id_for_label }}" class="form-label fw-bold">{{ field.label }}</label>
-                            {{ field }}
-                            {% if field.help_text %}
-                                <div class="form-text text-muted">{{ field.help_text }}</div>
-                            {% endif %}
-                            {% for error in field.errors %}
-                                <div class="text-danger small">{{ error }}</div>
-                            {% endfor %}
-                        </div>
-                    {% endfor %}
-                    
-                    <button type="submit" class="btn btn-primary w-100 mt-3">
-                        <i class="bi bi-bell me-2"></i> Save & Schedule Alert
-                    </button>
+                    <div class="mb-3">
+                        <label class="form-label">Cycle Name (e.g. Fall 2025 Retake)</label>
+                        <input type="text" name="cycle_name" class="form-control" placeholder="Exam Session Name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Semester Affected</label>
+                        <input type="text" name="semester" class="form-control" placeholder="e.g. 3rd Semester" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Form Submission Deadline</label>
+                        <input type="datetime-local" name="form_deadline" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">System Alert Date</label>
+                        <input type="datetime-local" name="alert_date" class="form-control" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">Initialize Alert Cycle</button>
                 </form>
             </div>
         </div>
     </div>
 
-    <div class="col-lg-7 mb-4">
-        <div class="card shadow-sm border-0 h-100">
-            <div class="card-header bg-white border-bottom py-3">
-                <h5 class="mb-0 fw-bold text-dark">Upcoming & Past Deadlines</h5>
-            </div>
-            <div class="card-body p-0">
-                <div class="table-responsive">
-                    <table class="table table-hover table-striped mb-0 align-middle">
-                        <thead class="table-light">
-                            <tr>
-                                <th scope="col">Cycle</th>
-                                <th scope="col">Form Deadline</th>
-                                <th scope="col">Alert Scheduled</th>
-                                <th scope="col" class="text-center">Status</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for deadline in deadlines %}
-                            {% with today=request.today|default:datetime.date.today %}
-                            <tr>
-                                <td class="fw-bold">{{ deadline.cycle_name }}</td>
-                                <td>{{ deadline.form_deadline|date:"M d, Y" }}</td>
-                                <td>{{ deadline.alert_date|date:"M d, Y" }}</td>
-                                <td class="text-center">
-                                    {% if deadline.is_alert_sent %}
-                                        <span class="badge bg-success">Alert Sent</span>
-                                    {% elif today > deadline.form_deadline %}
-                                        <span class="badge bg-secondary">Expired</span>
-                                    {% elif today >= deadline.alert_date %}
-                                        <span class="badge bg-danger">ALERT PENDING</span>
-                                    {% else %}
-                                        <span class="badge bg-info text-dark">Scheduled</span>
-                                    {% endif %}
-                                </td>
-                            </tr>
-                            {% endwith %}
-                            {% empty %}
-                            <tr>
-                                <td colspan="4" class="text-center text-muted py-4">
-                                    <i class="bi bi-calendar-x me-2"></i> No exam deadlines have been scheduled.
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
+    <div class="col-md-7">
+        <div class="card shadow border-0">
+            <div class="card-header bg-white fw-bold">Active Timelines</div>
+            <div class="table-responsive">
+                <table class="table align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Cycle</th>
+                            <th>Semester</th>
+                            <th>Deadline</th>
+                            <th>Alert Sent?</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for d in deadlines %}
+                        <tr>
+                            <td><strong>{{ d.cycle_name }}</strong></td>
+                            <td>{{ d.semester_affected }}</td>
+                            <td>{{ d.form_deadline|date:"M d, Y" }}</td>
+                            <td>
+                                {% if d.is_alert_sent %}
+                                    <span class="badge bg-success">Yes</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">Queued</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>

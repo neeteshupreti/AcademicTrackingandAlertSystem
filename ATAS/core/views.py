@@ -1,31 +1,23 @@
 from django.shortcuts import render
-from students.models import Student, CompartExamRecord # Note: Removed 'Grade'
+from students.models import Student, CompartExamRecord
 from notifications.models import CompartDeadline
-from django.db.models import Count, Q
-import datetime
+from django.utils import timezone
 
 def home(request):
-    """
-    Renders the main dashboard with key metrics.
-    """
-    today = datetime.date.today()
+    now = timezone.now()
     
-    # 1. Total Students
-    total_students = Student.objects.count()
-    
-    # 2. Students Requiring Compartment (Unresolved 'F' grades)
-    compartment_students = Student.objects.filter(
-        compart_records__is_cleared=False
-    ).distinct().count()
-
-    # 3. Upcoming Deadlines (Deadlines that haven't passed yet)
-    active_deadlines = CompartDeadline.objects.filter(
-        form_deadline__gte=today
-    ).count()
-
     context = {
-        'total_students': total_students,
-        'compartment_students': compartment_students,
-        'active_deadlines': active_deadlines,
+        'total_students': Student.objects.count(),
+        'compartment_students': CompartExamRecord.objects.filter(is_cleared=False).count(),
+        
+        # Fixed: Using 'form_deadline' instead of 'deadline_date'
+        'active_deadlines': CompartDeadline.objects.filter(form_deadline__gte=now).count(),
+        
+        # Fixed: Ordering by 'form_deadline'
+        'upcoming_deadlines': CompartDeadline.objects.filter(
+            form_deadline__gte=now
+        ).order_by('form_deadline')[:5],
+        
+        'recent_flags': CompartExamRecord.objects.select_related('student').order_by('-id')[:5]
     }
     return render(request, 'core/home.html', context)

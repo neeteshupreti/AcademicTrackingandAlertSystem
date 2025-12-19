@@ -58,11 +58,7 @@ ROOT_URLCONF = 'ATAS.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [
-            os.path.join(BASE_DIR, 'core/templates'),
-            os.path.join(BASE_DIR, 'students/templates'),
-            os.path.join(BASE_DIR, 'notifications/templates'),
-        ],
+        'DIRS': [BASE_DIR / 'core' / 'templates'], # Force it to look here
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [

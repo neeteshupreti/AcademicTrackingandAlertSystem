@@ -1,0 +1,55 @@
+{% extends 'core/admin_base.html' %}
+
+{% block page_title %}Dashboard Overview{% endblock %}
+
+{% block content %}
+<div class="row g-4">
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm p-4 text-center">
+            <h6 class="text-muted">Total Students</h6>
+            <h2 class="display-5 fw-bold">{{ total_students }}</h2>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm p-4 text-center" style="border-left: 5px solid #dc3545 !important;">
+            <h6 class="text-muted">Compartment Cases</h6>
+            <h2 class="display-5 fw-bold text-danger">{{ compartment_students }}</h2>
+        </div>
+    </div>
+</div>
+
+<div class="mt-5">
+    <h4 class="fw-bold mb-4">Recently Flagged Students</h4>
+    <div class="card border-0 shadow-sm">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Student Name</th>
+                        <th>Subject</th>
+                        <th>GPA/Grade</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for record in recent_flags %}
+                    <tr>
+                        <td><strong>{{ record.student.name }}</strong></td>
+                        <td>{{ record.subject_name }}</td>
+                        <td><span class="badge bg-danger">{{ record.grade }}</span></td>
+                        <td><span class="badge rounded-pill bg-warning text-dark">Pending Alert</span></td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="4" class="text-center py-5 text-muted">
+                            <i class="bi bi-inbox fs-1 d-block mb-3"></i>
+                            No data found. Upload a GPA sheet to begin tracking.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,28 +1,24 @@
 from django.shortcuts import render, redirect
-from django.views.decorators.http import require_http_methods
 from django.contrib import messages
 from .models import CompartDeadline
-from .forms import CompartDeadlineForm
 
-@require_http_methods(["GET", "POST"])
 def set_deadline(request):
-    """Handles setting new deadlines and displays all existing deadlines."""
-    if request.method == 'POST':
-        form = CompartDeadlineForm(request.POST)
-        if form.is_valid():
-            # The save method in the model automatically calculates the alert_date
-            form.save() 
-            messages.success(request, f"Deadline for '{form.cleaned_data['cycle_name']}' set successfully. Notification scheduled.")
-            return redirect('set_deadline')
-    else:
-        form = CompartDeadlineForm()
+    if request.method == "POST":
+        # Pro-level: Handling the specific fields in your model
+        cycle = request.POST.get('cycle_name')
+        deadline = request.POST.get('form_deadline')
+        alert = request.POST.get('alert_date')
+        semester = request.POST.get('semester')
+
+        CompartDeadline.objects.create(
+            cycle_name=cycle,
+            form_deadline=deadline,
+            alert_date=alert,
+            semester_affected=semester
+        )
+        messages.success(request, f"Deadline for {cycle} set successfully!")
+        return redirect('home')
     
-    # Retrieve all scheduled deadlines, ordered by the deadline date
+    # Fixed: Using 'form_deadline' for sorting
     deadlines = CompartDeadline.objects.all().order_by('form_deadline')
-    
-    context = {
-        'form': form,
-        'deadlines': deadlines,
-        'page_title': 'Set & Manage Exam Deadlines'
-    }
-    return render(request, 'notifications/set_deadline.html', context)
+    return render(request, 'notifications/set_deadline.html', {'deadlines': deadlines})

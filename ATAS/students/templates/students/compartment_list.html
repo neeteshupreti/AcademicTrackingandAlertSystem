@@ -1,0 +1,16 @@
+{% for record in records %}
+<tr>
+    <td>{{ record.student.student_id }}</td>
+    <td>{{ record.student.name }}</td>
+    <td><span class="badge bg-danger">{{ record.grade }}</span></td>
+    <td>{{ record.subject_name }}</td> <td>
+        {% if not record.is_cleared %} <span class="badge rounded-pill bg-warning text-dark">Pending</span>
+        {% else %}
+            <span class="badge rounded-pill bg-success">Cleared</span>
+        {% endif %}
+    </td>
+    <td>
+        <button class="btn btn-sm btn-light border">Notify</button>
+    </td>
+</tr>
+{% endfor %}
