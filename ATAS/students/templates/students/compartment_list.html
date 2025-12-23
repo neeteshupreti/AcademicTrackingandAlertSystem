@@ -1,16 +1,79 @@
-{% for record in records %}
-<tr>
-    <td>{{ record.student.student_id }}</td>
-    <td>{{ record.student.name }}</td>
-    <td><span class="badge bg-danger">{{ record.grade }}</span></td>
-    <td>{{ record.subject_name }}</td> <td>
-        {% if not record.is_cleared %} <span class="badge rounded-pill bg-warning text-dark">Pending</span>
-        {% else %}
-            <span class="badge rounded-pill bg-success">Cleared</span>
-        {% endif %}
-    </td>
-    <td>
-        <button class="btn btn-sm btn-light border">Notify</button>
-    </td>
-</tr>
-{% endfor %}
+{% extends 'core/admin_base.html' %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h3 class="fw-bold text-gray-800">Academic Tracking & Notifications</h3>
+    <span class="badge bg-primary px-3 py-2">{{ records|length }} Issues Flagged</span>
+</div>
+
+<div class="card shadow-sm mb-4">
+    <div class="card-body">
+        <form method="GET" class="row g-3">
+            <div class="col-md-4">
+                <label class="form-label small fw-bold">Filter by Class/Semester</label>
+                <select name="semester" class="form-select">
+                    <option value="">All Semesters</option>
+                    <option value="1">1st Semester</option>
+                    <option value="2">2nd Semester</option>
+                    <option value="3">3rd Semester</option>
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label small fw-bold">Status</label>
+                <select name="status" class="form-select">
+                    <option value="pending">Pending Notification</option>
+                    <option value="notified">Notified</option>
+                </select>
+            </div>
+            <div class="col-md-2 d-flex align-items-end">
+                <button type="submit" class="btn btn-secondary w-100">Apply Filter</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card shadow-sm border-0">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="bg-light">
+                <tr>
+                    <th class="ps-4">Student ID</th>
+                    <th>Full Name</th>
+                    <th>Flagged Subject</th>
+                    <th>GPA/Grade</th>
+                    <th>Status</th>
+                    <th class="text-end pe-4">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for record in records %}
+                <tr>
+                    <td class="ps-4"><code>#{{ record.student.student_id }}</code></td>
+                    <td class="fw-bold">{{ record.student.name }}</td>
+                    <td>{{ record.subject_name }}</td>
+                    <td><span class="text-danger fw-bold">{{ record.grade }}</span></td>
+                    <td>
+                        {% if not record.is_cleared %}
+                        <span class="badge bg-warning text-dark"><i class="bi bi-clock"></i> Action Required</span>
+                        {% else %}
+                        <span class="badge bg-success">Cleared</span>
+                        {% endif %}
+                    </td>
+                    <td class="text-end pe-4">
+                        <button class="btn btn-sm btn-primary shadow-sm">
+                            <i class="bi bi-envelope-at"></i> Send Alert
+                        </button>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" class="text-center py-5">
+                        <p class="text-muted">No students found matching these filters.</p>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

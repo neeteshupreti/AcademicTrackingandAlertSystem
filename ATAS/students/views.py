@@ -35,6 +35,20 @@ def upload_gpa_sheet(request):
     return render(request, 'students/upload_gpa.html')
 
 def compartment_students_list(request):
-    # Fixed: Passing 'records' to the template
+    """View with dynamic filtering by semester/status."""
     records = CompartExamRecord.objects.select_related('student').all()
+
+    # Get filter values from the URL
+    semester = request.GET.get('semester')
+    status = request.GET.get('status')
+
+    if semester:
+        # Assuming your student model has a semester field
+        records = records.filter(student__semester=semester)
+    
+    if status == 'notified':
+        records = records.filter(is_cleared=True)
+    elif status == 'pending':
+        records = records.filter(is_cleared=False)
+
     return render(request, 'students/compartment_list.html', {'records': records})
