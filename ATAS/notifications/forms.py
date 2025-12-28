@@ -4,7 +4,6 @@ from .models import CompartDeadline
 class CompartDeadlineForm(forms.ModelForm):
     class Meta:
         model = CompartDeadline
-        # Exclude alert_date and is_alert_sent as they are calculated/managed by the system
         fields = ['cycle_name', 'semester_affected', 'form_deadline']
         widgets = {
             'cycle_name': forms.TextInput(attrs={'class': 'form-control'}),

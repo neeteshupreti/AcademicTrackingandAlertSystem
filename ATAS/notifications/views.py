@@ -1,24 +1,27 @@
 from django.shortcuts import render, redirect
 from django.contrib import messages
-from .models import CompartDeadline
+from .models import CompartDeadline, Course, Faculty
 
 def set_deadline(request):
     if request.method == "POST":
-        # Pro-level: Handling the specific fields in your model
-        cycle = request.POST.get('cycle_name')
-        deadline = request.POST.get('form_deadline')
-        alert = request.POST.get('alert_date')
-        semester = request.POST.get('semester')
-
+        # Get IDs from the dropdowns
+        course_id = request.POST.get('course')
+        faculty_id = request.POST.get('faculty')
+        
         CompartDeadline.objects.create(
-            cycle_name=cycle,
-            form_deadline=deadline,
-            alert_date=alert,
-            semester_affected=semester
+            cycle_name=request.POST.get('cycle_name'),
+            course_id=course_id,
+            assigned_faculty_id=faculty_id,
+            semester_affected=request.POST.get('semester'),
+            form_deadline=request.POST.get('form_deadline'),
+            alert_date=request.POST.get('alert_date')
         )
-        messages.success(request, f"Deadline for {cycle} set successfully!")
+        messages.success(request, "Deadline scheduled and linked to Faculty!")
         return redirect('home')
     
-    # Fixed: Using 'form_deadline' for sorting
-    deadlines = CompartDeadline.objects.all().order_by('form_deadline')
-    return render(request, 'notifications/set_deadline.html', {'deadlines': deadlines})
+    context = {
+        'deadlines': CompartDeadline.objects.all().order_by('form_deadline'),
+        'courses': Course.objects.all(),
+        'faculties': Faculty.objects.all()
+    }
+    return render(request, 'notifications/set_deadline.html', context)
