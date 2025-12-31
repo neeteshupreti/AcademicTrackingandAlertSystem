@@ -1,0 +1,171 @@
+{% extends 'core/admin_base.html' %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row mb-4">
+        <div class="col-12 text-center">
+            <h2 class="fw-bold"><i class="bi bi-robot text-primary"></i> ATAS Smart Scan Engine</h2>
+            <p class="text-muted">Automated GPA Extraction & Failure Detection System</p>
+        </div>
+    </div>
+
+    <div class="row justify-content-center g-4">
+        <div class="col-md-10 text-center mb-2">
+            <div class="btn-group shadow-sm" role="group">
+                <button id="btn-show-upload" class="btn btn-outline-primary active py-2 px-4">
+                    <i class="bi bi-file-earmark-arrow-up"></i> Upload Document
+                </button>
+                <button id="btn-show-camera" class="btn btn-outline-primary py-2 px-4">
+                    <i class="bi bi-camera"></i> Live Scanner
+                </button>
+            </div>
+        </div>
+
+        <div class="col-lg-5">
+            <div id="section-upload" class="card border-0 shadow-sm h-100">
+                <div class="card-body p-4 text-center">
+                    <div class="mb-4">
+                        <i class="bi bi-file-text display-1 text-light-emphasis"></i>
+                    </div>
+                    <h5 class="fw-bold">File Upload</h5>
+                    <p class="small text-muted">Select a clear image of a transcript or grade sheet.</p>
+                    <input type="file" id="fileInput" class="form-control mb-3" accept="image/*">
+                    <button type="button" id="process-file-btn" class="btn btn-success w-100 py-2">
+                        <i class="bi bi-gear-fill me-2"></i> Process File
+                    </button>
+                </div>
+            </div>
+
+            <div id="section-camera" class="card border-0 shadow-sm h-100 d-none">
+                <div class="card-body p-4 text-center">
+                    <div class="bg-dark rounded overflow-hidden mb-3 border border-secondary" style="aspect-ratio: 4/3;">
+                        <video id="webcam" autoplay playsinline class="w-100 h-100" style="object-fit: cover;"></video>
+                    </div>
+                    <button id="snap" class="btn btn-primary w-100 py-2">
+                        <i class="bi bi-camera-fill me-2"></i> Capture & Analyze
+                    </button>
+                    <canvas id="canvas" class="d-none"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-white border-0 pt-4">
+                    <h5 class="fw-bold mb-0">Extraction Results</h5>
+                </div>
+                <div class="card-body">
+                    <div id="placeholder" class="text-center py-5">
+                        <i class="bi bi-arrow-left-circle display-4 text-muted opacity-25"></i>
+                        <p class="text-muted mt-2">Waiting for input...</p>
+                    </div>
+
+                    <div id="loader" class="text-center py-5 d-none">
+                        <div class="spinner-grow text-primary" role="status"></div>
+                        <p class="mt-3 fw-bold text-primary">OCR Processing & Analyzing GPA...</p>
+                    </div>
+
+                    <div id="result-view" class="d-none">
+                        <div id="alert-status" class="alert mb-4 text-center fw-bold"></div>
+                        
+                        <table class="table table-bordered align-middle">
+                            <thead class="table-light">
+                                <tr><th colspan="2" class="small text-uppercase">Extracted Profile</th></tr>
+                            </thead>
+                            <tbody id="data-table-body">
+                                </tbody>
+                        </table>
+
+                        <h6 class="small fw-bold text-muted mt-4">RAW SCAN TEXT:</h6>
+                        <div class="bg-light p-2 rounded border" style="max-height: 150px; overflow-y: auto; font-size: 0.75rem;">
+                            <pre id="raw-text" class="mb-0"></pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const btnUpload = document.getElementById('btn-show-upload');
+    const btnCamera = document.getElementById('btn-show-camera');
+    const sectionUpload = document.getElementById('section-upload');
+    const sectionCamera = document.getElementById('section-camera');
+    const video = document.getElementById('webcam');
+    let stream = null;
+
+    // View Toggles
+    btnUpload.onclick = () => {
+        sectionUpload.classList.remove('d-none');
+        sectionCamera.classList.add('d-none');
+        btnUpload.classList.add('active');
+        btnCamera.classList.remove('active');
+        if(stream) stream.getTracks().forEach(t => t.stop());
+    };
+
+    btnCamera.onclick = async () => {
+        sectionUpload.classList.add('d-none');
+        sectionCamera.classList.remove('d-none');
+        btnCamera.classList.add('active');
+        btnUpload.classList.remove('active');
+        stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
+        video.srcObject = stream;
+    };
+
+    // Communication with Backend
+    async function sendToBackend(base64Image) {
+        document.getElementById('placeholder').classList.add('d-none');
+        document.getElementById('result-view').classList.add('d-none');
+        document.getElementById('loader').classList.remove('d-none');
+
+        try {
+            const response = await fetch('/students/process-scan/', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json', 'X-CSRFToken': '{{ csrf_token }}'},
+                body: JSON.stringify({ image: base64Image })
+            });
+            const data = await response.json();
+
+            document.getElementById('loader').classList.add('d-none');
+            document.getElementById('result-view').classList.remove('d-none');
+
+            // Handle UI Updates
+            const alertBox = document.getElementById('alert-status');
+            const isFail = data.extracted_data.gpa < 2.0;
+            
+            alertBox.className = `alert ${isFail ? 'alert-danger' : 'alert-success'} mb-4 text-center fw-bold`;
+            alertBox.innerHTML = `<i class="bi ${isFail ? 'bi-exclamation-triangle-fill' : 'bi-check-circle-fill'}"></i> ${data.message}`;
+
+            document.getElementById('data-table-body').innerHTML = `
+                <tr><td><strong>Name</strong></td><td>${data.extracted_data.name}</td></tr>
+                <tr><td><strong>Roll No</strong></td><td>${data.extracted_data.roll}</td></tr>
+                <tr><td><strong>GPA</strong></td><td class="${isFail ? 'text-danger fw-bold' : 'text-success fw-bold'}">${data.extracted_data.gpa}</td></tr>
+                <tr><td><strong>Failed Subjects</strong></td><td>${data.extracted_data.failed_subjects.length || 'None Detected'}</td></tr>
+            `;
+
+            document.getElementById('raw-text').innerText = data.text || data.raw_text;
+
+        } catch (error) {
+            alert("Connection error. Ensure Tesseract is installed and Server is running.");
+        }
+    }
+
+    // Capture Events
+    document.getElementById('snap').onclick = () => {
+        const canvas = document.getElementById('canvas');
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        canvas.getContext('2d').drawImage(video, 0, 0);
+        sendToBackend(canvas.toDataURL('image/png'));
+    };
+
+    document.getElementById('process-file-btn').onclick = () => {
+        const file = document.getElementById('fileInput').files[0];
+        if (!file) return alert("Please select a transcript image first.");
+        const reader = new FileReader();
+        reader.onloadend = () => sendToBackend(reader.result);
+        reader.readAsDataURL(file);
+    };
+</script>
+{% endblock %}

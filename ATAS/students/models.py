@@ -38,3 +38,13 @@ class CompartExamRecord(models.Model):
 
     def __str__(self):
         return f"{self.student.registration_number} failed {self.subject_code}"
+
+from django.db import models
+
+class ScannedResult(models.Model):
+    image = models.ImageField(upload_to='scans/') # Make sure this is indented!
+    extracted_text = models.TextField(blank=True)
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Scan {self.id} - {self.uploaded_at}"
