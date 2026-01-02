@@ -40,7 +40,7 @@ Ensure you have **Tesseract OCR** installed on your system:
 ### 2. Setup Environment
 ```bash
 # Clone the repository
-git clone [https://github.com/yourusername/ATAS-System.git](https://github.com/yourusername/ATAS-System.git)
+git clone https://github.com/yourusername/AcademicTrackingandAlertSystem.git
 cd ATAS-System
 
 # Install dependencies
