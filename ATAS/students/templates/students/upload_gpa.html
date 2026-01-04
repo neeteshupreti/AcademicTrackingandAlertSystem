@@ -1,34 +1,85 @@
 {% extends 'core/admin_base.html' %}
-
 {% block content %}
-<div class="container-fluid">
-    <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="card shadow border-0">
-                <div class="card-header bg-white py-3">
-                    <h5 class="mb-0 fw-bold text-primary">Upload Academic Records</h5>
-                </div>
-                <div class="card-body p-5 text-center">
-                    <form method="post" enctype="multipart/form-data" class="dropzone-box">
-                        {% csrf_token %}
-                        <i class="bi bi-cloud-arrow-up display-1 text-muted"></i>
-                        <h4 class="mt-3">Select GPA Sheet</h4>
-                        <p class="text-muted small">Supports .CSV, .XLSX files. Ensure columns include 'student_id', 'name', and 'gpa'.</p>
-                        
-                        <input type="file" name="gpa_file" class="form-control my-4" accept=".csv, .xlsx" required>
-                        
-                        <div class="d-grid">
-                            <button type="submit" class="btn btn-primary btn-lg">
-                                <i class="bi bi-cpu me-2"></i>Process & Identify Failures
-                            </button>
-                        </div>
-                    </form>
+<div class="container py-4">
+    <div class="row">
+        <div class="col-md-3">
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-header bg-dark text-white fw-bold">Import Methods</div>
+                <div class="list-group list-group-flush">
+                    <a href="{% url 'import_records' %}" class="list-group-item list-group-item-action">
+                        <i class="bi bi-image-fill me-2"></i> Image OCR (KU Sheet)
+                    </a>
+                    <a href="{% url 'upload_gpa' %}" class="list-group-item list-group-item-action active">
+                        <i class="bi bi-file-earmark-spreadsheet-fill me-2"></i> GPA Sheet (CSV/Excel)
+                    </a>
                 </div>
             </div>
             
-            <div class="alert alert-info mt-4">
-                <i class="bi bi-info-circle me-2"></i>
-                <strong>Note:</strong> Processing uses the Pandas engine. Students with a GPA below 2.0 will be automatically flagged for compartment exams.
+            <div class="alert alert-warning border-0 shadow-sm" style="font-size: 0.85rem;">
+                <i class="bi bi-exclamation-circle-fill me-1"></i> 
+                <strong>Requirement:</strong> Ensure your CSV has columns for <b>Name, GPA,</b> and <b>Status</b>.
+            </div>
+        </div>
+
+        <div class="col-md-9">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-success text-white p-3">
+                    <h5 class="mb-0"><i class="bi bi-file-earmark-spreadsheet me-2"></i> Bulk GPA Data Import</h5>
+                </div>
+                
+                <div class="card-body p-5">
+                    <div id="upload-container" class="text-center py-4">
+                        <div class="mb-4">
+                            <i class="bi bi-filetype-csv display-1 text-success opacity-75"></i>
+                        </div>
+                        
+                        <h4 class="fw-bold">Upload Result Sheet</h4>
+                        <p class="text-muted mb-4">Select a .csv or .xlsx file exported from the Examination Office</p>
+
+                        <form action="{% url 'upload_gpa' %}" method="POST" enctype="multipart/form-data" class="mx-auto" style="max-width: 400px;">
+                            {% csrf_token %}
+                            <div class="input-group mb-3">
+                                <input type="file" name="gpa_file" class="form-control" id="inputGroupFile02" accept=".csv, .xlsx" required>
+                                <label class="input-group-text" for="inputGroupFile02">Browse</label>
+                            </div>
+                            <button type="submit" class="btn btn-success btn-lg w-100 shadow-sm fw-bold">
+                                <i class="bi bi-cloud-arrow-up-fill me-2"></i> START BULK IMPORT
+                            </button>
+                        </form>
+                    </div>
+
+                    {% if messages %}
+                        <div class="mt-4">
+                            {% for message in messages %}
+                                <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}success{% endif %} shadow-sm border-0">
+                                    {{ message }}
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="card mt-4 border-0 shadow-sm">
+                <div class="card-body">
+                    <h6 class="fw-bold text-muted"><i class="bi bi-table me-2"></i> Expected CSV Format</h6>
+                    <table class="table table-sm table-bordered mt-2 text-center" style="font-size: 0.9rem;">
+                        <thead class="bg-light">
+                            <tr>
+                                <th>Student Name</th>
+                                <th>GPA</th>
+                                <th>Failed_Subjects</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>UPRETI NITESH</td>
+                                <td>X</td>
+                                <td>MATH 101, COMP 102</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
