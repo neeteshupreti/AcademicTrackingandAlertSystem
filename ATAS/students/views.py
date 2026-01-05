@@ -1,162 +1,114 @@
-import re
-import base64
-import json
-import cv2
+import re, base64, json, cv2, csv, difflib, uuid
 import numpy as np
-import io
-import csv
 from django.http import JsonResponse
-from django.shortcuts import render, redirect
+from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib import messages
 from PIL import Image
 import pytesseract
-
 from .models import Student, CompartExamRecord
 
-# --- 1. OCR SCANNING LOGIC ---
+# --- CONSTANTS & HELPERS ---
+NOISE_WORDS = {"NAME", "STUDENT", "THE", "OF", "OFTHE", "REGISTRATION", "NO", "NUMBER", "REGD", "ROLL", "DATE", "BIRTH", "GENDER", "STUDENTNAME", "PROVISIONAL", "UNIVERSITY", "SCHOOL", "ENGINEERING", "OFFICE", "CONTROLLER", "ACADEMIC", "RECORD", "BACHELOR", "TECHNOLOGY", "KATHMANDU"}
+
+def get_unique_placeholders(name):
+    """Generates unique data to satisfy DB constraints."""
+    uid = uuid.uuid4().hex[:6].upper()
+    return {
+        'email': f"{name.lower().replace(' ', '.')}.{uid}@atas.local",
+        'reg': f"REG-{uid}"
+    }
+
+# --- OCR LOGIC ---
+def get_student_name_advanced(processed_img):
+    data = pytesseract.image_to_data(Image.fromarray(processed_img), output_type=pytesseract.Output.DICT)
+    
+    # Find Y-axis of the name line
+    target_y = next((data['top'][i] for i, txt in enumerate(data['text']) if any(x in txt.upper() for x in ["STUDENT", "NAME"])), -1)
+    
+    if target_y == -1: return "Unknown"
+
+    # Collect and sort words on that line
+    row = []
+    for i in range(len(data['text'])):
+        clean = re.sub(r'[^A-Z]', '', data['text'][i].upper())
+        if abs(data['top'][i] - target_y) < 30 and clean not in NOISE_WORDS and len(clean) > 1:
+            row.append({'text': clean, 'x': data['left'][i]})
+    
+    row.sort(key=lambda x: x['x'])
+    
+    # De-duplicate and Merge
+    final_words = []
+    for word in [r['text'] for r in row]:
+        if not any(word in f or f in word or difflib.SequenceMatcher(None, word, f).ratio() > 0.8 for f in final_words):
+            final_words.append(word)
+    
+    ocr_name = " ".join(final_words).strip()
+    
+    # Database Autocorrect
+    matches = difflib.get_close_matches(ocr_name, Student.objects.values_list('name', flat=True), n=1, cutoff=0.4)
+    return matches[0] if matches else ocr_name
+
+# --- VIEWS ---
 @csrf_exempt
 def process_scan(request):
-    if request.method == "POST":
-        try:
-            data = json.loads(request.body)
-            img_str = data.get('image').split(';base64,')[1]
-            
-            # Pre-processing for KU White-Paper Transcripts
-            nparr = np.frombuffer(base64.b64decode(img_str), np.uint8)
-            img = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
-            gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-            processed = cv2.threshold(gray, 175, 255, cv2.THRESH_BINARY)[1]
-            
-            # OCR Extraction
-            raw_text = pytesseract.image_to_string(Image.fromarray(processed), config='--psm 6')
-            lines = [l.strip() for l in raw_text.split('\n') if len(l.strip()) > 1]
+    if request.method != "POST": return JsonResponse({'status': 'error'})
+    try:
+        img_data = json.loads(request.body).get('image').split(';base64,')[1]
+        nparr = np.frombuffer(base64.b64decode(img_data), np.uint8)
+        img = cv2.imdecode(nparr, cv2.IMREAD_GRAYSCALE)
+        _, processed = cv2.threshold(img, 175, 255, cv2.THRESH_BINARY)
+        
+        # Data Extraction
+        name = get_student_name_advanced(processed)
+        raw_text = pytesseract.image_to_string(Image.fromarray(processed), config='--psm 6')
+        
+        failed = [m.group(1) for l in raw_text.split('\n') if (m := re.search(r'\b([A-Z]{3,4}\s?\d{3})\b', l)) and re.search(r'\b(F|\(F\)|INC)\b', l)]
+        gpa = m.group(1) if (m := re.search(r"GPA.*?([0-9\.]+|X)", raw_text, re.IGNORECASE)) else "N/A"
 
-            # --- NAME EXTRACTION (Elimination Strategy) ---
-            student_name = "Unknown"
-            noise_words = [
-                "UNIVERSITY", "SCHOOL", "ENGINEERING", "OFFICE", "CONTROLLER", 
-                "EXAMINATIONS", "GRADE", "SHEET", "PROVISIONAL", "KATHMANDU",
-                "ACADEMIC", "RECORD", "OFFICIAL", "TRANSCRIPT", "PROGRAM",
-                "SURNAME", "FIRST", "MIDDLE", "NAME", "STUDENT", "REGISTRATION"
-            ]
+        return JsonResponse({
+            'status': 'success',
+            'extracted_data': {'name': name, 'gpa': gpa, 'failed_subjects': ", ".join(failed) if failed else "None"},
+            'is_failing': gpa == "X" or len(failed) > 0
+        })
+    except Exception as e:
+        return JsonResponse({'status': 'error', 'message': str(e)})
 
-            candidates = []
-            for line in lines[:20]: # Check top header section
-                clean_line = re.sub(r'[:\.]', '', line).strip()
-                # A name is ALL CAPS, 2+ words, and not a university header
-                if clean_line.isupper() and len(clean_line.split()) >= 2:
-                    if not any(word in clean_line for word in noise_words):
-                        candidates.append(clean_line)
-
-            if candidates:
-                student_name = candidates[0]
-
-            # --- FAILED SUBJECT LOGIC (Your Working Logic) ---
-            failed_list = []
-            for line in lines:
-                course_match = re.search(r'\b([A-Z]{3,4}\s?\d{3})\b', line)
-                if course_match:
-                    # Looking for (F), F, or INC marks
-                    if re.search(r'\b(F|\(F\)|INC)\b', line):
-                        failed_list.append(course_match.group(1))
-
-            # --- GPA STATUS ---
-            gpa_val = "N/A"
-            gpa_match = re.search(r"GPA.*?([0-9\.]+|X)", raw_text, re.IGNORECASE)
-            if gpa_match:
-                gpa_val = gpa_match.group(1)
-
-            is_failing = (gpa_val == "X") or (len(failed_list) > 0)
-            
-            return JsonResponse({
-                'status': 'success',
-                'is_failing': is_failing,
-                'extracted_data': {
-                    'name': student_name, 
-                    'gpa': gpa_val,
-                    'failed_subjects': ", ".join(failed_list) if failed_list else "None"
-                }
-            })
-        except Exception as e:
-            return JsonResponse({'status': 'error', 'message': str(e)})
-
-# --- 2. DATABASE PERSISTENCE ---
-@csrf_exempt
-def save_verified_data(request):
-    """Saves the individual OCR results verified by the user."""
-    if request.method == "POST":
-        try:
-            data = json.loads(request.body)
-            name = data.get('name', 'Unknown').strip().upper()
-            gpa = data.get('gpa')
-            failed_subj = data.get('failed_subjects', '')
-            
-            # Update Student Profile
-            student, _ = Student.objects.update_or_create(
-                name=name,
-                defaults={'gpa': 0.0 if gpa == "X" else (float(gpa) if str(gpa).replace('.','',1).isdigit() else 0.0)}
-            )
-            
-            # Create Backlog Record if failing
-            if data.get('is_failing'):
-                CompartExamRecord.objects.get_or_create(
-                    student=student, 
-                    subject_name=f"Failed: {failed_subj}",
-                    defaults={'is_cleared': False}
-                )
-            return JsonResponse({'status': 'success', 'message': f'Record for {name} saved.'})
-        except Exception as e:
-            return JsonResponse({'status': 'error', 'message': str(e)})
-
-# --- 3. CSV BULK IMPORT LOGIC ---
 def upload_gpa_sheet(request):
-    """Handles CSV/Excel uploads for mass student records."""
     if request.method == "POST":
         csv_file = request.FILES.get('gpa_file')
-        
-        if not csv_file or not csv_file.name.endswith('.csv'):
-            messages.error(request, 'Error: Please upload a valid .csv file.')
-            return render(request, 'students/upload_gpa.html')
-
         try:
-            decoded_file = csv_file.read().decode('utf-8').splitlines()
-            reader = csv.DictReader(decoded_file)
-            
-            count = 0
+            reader = csv.DictReader(csv_file.read().decode('utf-8').splitlines())
             for row in reader:
-                # Column names must match: 'Student Name', 'GPA', 'Failed_Subjects'
                 name = row.get('Student Name', '').strip().upper()
-                gpa = row.get('GPA', '0.0')
-                failed = row.get('Failed_Subjects', '')
-
+                gpa_str = row.get('GPA', '0.0').strip().upper()
+                
                 if name:
-                    student, _ = Student.objects.update_or_create(
-                        name=name,
-                        defaults={'gpa': 0.0 if gpa == "X" else float(gpa)}
-                    )
+                    extra = get_unique_placeholders(name)
+                    student, _ = Student.objects.get_or_create(name=name, defaults={'semester': 1, 'email': extra['email'], 'registration_number': extra['reg']})
+                    
+                    if hasattr(student, 'gpa'):
+                        student.gpa = 0.0 if gpa_str == "X" else float(gpa_str)
+                        student.save()
 
-                    # Trigger alert record if GPA is X or failed subjects exist
-                    if gpa == "X" or (failed and failed.lower() != "none"):
-                        CompartExamRecord.objects.get_or_create(
-                            student=student,
-                            subject_name=f"Backlog: {failed}",
-                            defaults={'is_cleared': False}
-                        )
-                    count += 1
-            
-            messages.success(request, f'ATAS Update: Successfully imported {count} records.')
+                    if gpa_str == "X" or row.get('Failed_Subjects', '').lower() != "none":
+                        CompartExamRecord.objects.get_or_create(student=student, subject_name=f"Alert: {row.get('Failed_Subjects', 'Low GPA')}", defaults={'is_cleared': False})
+            messages.success(request, "Import successful.")
         except Exception as e:
-            messages.error(request, f'System Error: {str(e)}')
-
+            messages.error(request, f"Error: {e}")
     return render(request, 'students/upload_gpa.html')
 
-# --- 4. VIEW RENDERING ---
-def import_records_view(request):
-    """Renders the Image/Webcam OCR Scanner page."""
-    return render(request, 'students/import_records.html')
+@csrf_exempt
+def save_verified_data(request):
+    if request.method == "POST":
+        data = json.loads(request.body)
+        extra = get_unique_placeholders(data.get('name', 'UNK'))
+        student, _ = Student.objects.get_or_create(name=data.get('name').upper(), defaults={'semester': 1, 'registration_number': extra['reg'], 'email': extra['email']})
+        if data.get('is_failing'):
+            CompartExamRecord.objects.get_or_create(student=student, subject_name=f"Verified: {data.get('failed_subjects')}", defaults={'is_cleared': False})
+        return JsonResponse({'status': 'success'})
 
 def compartment_students_list(request):
-    """Renders the list of students flagged by the system."""
-    records = CompartExamRecord.objects.select_related('student').filter(is_cleared=False)
-    return render(request, 'students/list.html', {'records': records})
+    return render(request, 'students/list.html', {'records': CompartExamRecord.objects.filter(is_cleared=False).select_related('student')})
+
+def import_records_view(request): return render(request, 'students/import_records.html')

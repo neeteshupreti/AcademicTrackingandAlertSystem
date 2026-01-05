@@ -2,19 +2,20 @@ from django.db import models
 
 class Student(models.Model):
     """Stores general student information, typically extracted once."""
-    name = models.CharField(max_length=200)
+    name = models.CharField(max_length=255, unique=True)
     registration_number = models.CharField(max_length=50, unique=True)
     batch = models.CharField(max_length=20)
-    semester = models.IntegerField()
-    email = models.EmailField(max_length=254, unique=True, help_text="Used for automated notifications.")
-    
+    semester = models.IntegerField(null=True, blank=True, default=1)
+    gpa = models.FloatField(default=0.0, null=True, blank=True)
+    email = models.EmailField(unique=True, null=True, blank=True)
+
     # Metadata for tracking
     is_active = models.BooleanField(default=True)
     date_joined = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"{self.registration_number} - {self.name}"
-
+        return self.name
+    
 class CompartExamRecord(models.Model):
     """
     Stores a record of a specific failed subject for a student,
