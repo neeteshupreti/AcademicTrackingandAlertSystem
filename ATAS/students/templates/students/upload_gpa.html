@@ -1,87 +1,281 @@
 {% extends 'core/admin_base.html' %}
+
+{% block title %}Import Records - ATAS{% endblock %}
+
 {% block content %}
-<div class="container py-4">
-    <div class="row">
-        <div class="col-md-3">
-            <div class="card shadow-sm border-0 mb-4">
-                <div class="card-header bg-dark text-white fw-bold">Import Methods</div>
-                <div class="list-group list-group-flush">
-                    <a href="{% url 'import_records' %}" class="list-group-item list-group-item-action">
-                        <i class="bi bi-image-fill me-2"></i> Image OCR (KU Sheet)
-                    </a>
-                    <a href="{% url 'upload_gpa' %}" class="list-group-item list-group-item-action active">
-                        <i class="bi bi-file-earmark-spreadsheet-fill me-2"></i> GPA Sheet (CSV/Excel)
-                    </a>
-                </div>
+<!-- Page Header -->
+<div class="mb-4">
+    <h1 class="font-bold" style="font-size: 2rem; color: var(--gray-900); margin: 0;">
+        <i class="bi bi-cloud-arrow-up me-2"></i>Import Student Records
+    </h1>
+    <p class="text-muted mt-1" style="margin-bottom: 0;">Upload GPA data or scan result sheets to update student records</p>
+</div>
+
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-bottom: 2rem;">
+    <!-- Left: Import Methods -->
+    <div>
+        <div class="card-modern">
+            <div class="card-header-modern">
+                <h4 style="margin: 0; font-size: 1.1rem;">
+                    <i class="bi bi-arrow-repeat me-2"></i>Import Method
+                </h4>
             </div>
             
-            <div class="alert alert-warning border-0 shadow-sm" style="font-size: 0.85rem;">
-                <i class="bi bi-exclamation-circle-fill me-1"></i> 
-                <strong>Requirement:</strong> Ensure your CSV has columns for <b>Name, GPA,</b> and <b>Status</b>.
+            <div class="card-body-modern p-0">
+                <div style="display: flex; flex-direction: column;">
+                    <a href="{% url 'import_records' %}" class="import-method-btn" style="border-bottom: 1px solid var(--gray-200);">
+                        <i class="bi bi-camera-fill"></i>
+                        <div style="flex: 1;">
+                            <div class="font-semibold">Image OCR</div>
+                            <small class="text-muted">Scan KU Result Sheets</small>
+                        </div>
+                        <i class="bi bi-chevron-right"></i>
+                    </a>
+                    <div class="import-method-btn" style="background: var(--primary-light); border-left: 4px solid var(--primary-color);">
+                        <i class="bi bi-file-earmark-spreadsheet-fill" style="color: var(--primary-color);"></i>
+                        <div style="flex: 1;">
+                            <div class="font-semibold" style="color: var(--primary-dark);">CSV/Excel Upload</div>
+                            <small class="text-muted">Current method</small>
+                        </div>
+                        <i class="bi bi-check-circle-fill" style="color: var(--primary-color);"></i>
+                    </div>
+                </div>
             </div>
         </div>
-
-        <div class="col-md-9">
-            <div class="card shadow-sm border-0">
-                <div class="card-header bg-success text-white p-3">
-                    <h5 class="mb-0"><i class="bi bi-file-earmark-spreadsheet me-2"></i> Bulk GPA Data Import</h5>
+        
+        <!-- Info Box -->
+        <div class="alert-modern alert-info mt-3">
+            <i class="bi bi-info-circle-fill"></i>
+            <div>
+                <strong>Required Columns</strong>
+                <p style="margin: 0.5rem 0 0 0; font-size: 0.9rem;">Your CSV must contain: Name, GPA, and Failed Subjects columns.</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Right: Upload Area -->
+    <div class="card-modern">
+        <div class="card-header-modern">
+            <h4 style="margin: 0; font-size: 1.1rem;">
+                <i class="bi bi-file-earmark-spreadsheet me-2"></i>Upload GPA Sheet
+            </h4>
+        </div>
+        
+        <div class="card-body-modern text-center">
+            <div style="margin-bottom: 2rem;">
+                <div style="font-size: 3rem; color: var(--secondary-color); margin-bottom: 1rem;">
+                    <i class="bi bi-file-earmark-arrow-up"></i>
                 </div>
                 
-                <div class="card-body p-5">
-                    <div id="upload-container" class="text-center py-4">
-                        <div class="mb-4">
-                            <i class="bi bi-filetype-csv display-1 text-success opacity-75"></i>
-                        </div>
-                        
-                        <h4 class="fw-bold">Upload Result Sheet</h4>
-                        <p class="text-muted mb-4">Select a .csv or .xlsx file exported from the Examination Office</p>
-
-                        <form action="{% url 'upload_gpa' %}" method="POST" enctype="multipart/form-data" class="mx-auto" style="max-width: 400px;">
-                            {% csrf_token %}
-                            <div class="input-group mb-3">
-                                <input type="file" name="gpa_file" class="form-control" id="inputGroupFile02" accept=".csv, .xlsx" required>
-                                <label class="input-group-text" for="inputGroupFile02">Browse</label>
-                            </div>
-                            <button type="submit" class="btn btn-success btn-lg w-100 shadow-sm fw-bold">
-                                <i class="bi bi-cloud-arrow-up-fill me-2"></i> START BULK IMPORT
-                            </button>
-                        </form>
+                <h4 class="font-bold" style="color: var(--gray-900);">Upload Result Sheet</h4>
+                <p class="text-muted mb-4">Select a .csv or .xlsx file from your computer</p>
+                
+                <form action="{% url 'upload_gpa' %}" method="POST" enctype="multipart/form-data" class="upload-form">
+                    {% csrf_token %}
+                    
+                    <div class="file-input-wrapper">
+                        <input 
+                            type="file" 
+                            name="gpa_file" 
+                            id="gpaFile" 
+                            accept=".csv, .xlsx, .xls"
+                            class="file-input"
+                            required
+                            onchange="updateFileName(this)"
+                        >
+                        <label for="gpaFile" class="file-label">
+                            <i class="bi bi-folder-open"></i>
+                            <span id="fileName">Click to browse or drag file</span>
+                        </label>
                     </div>
-
-                    {% if messages %}
-                        <div class="mt-4">
-                            {% for message in messages %}
-                                <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}success{% endif %} shadow-sm border-0">
-                                    {{ message }}
-                                </div>
-                            {% endfor %}
-                        </div>
-                    {% endif %}
-                </div>
+                    
+                    <button type="submit" class="btn-success-modern btn-primary-modern w-100 mt-3" style="background: linear-gradient(135deg, var(--secondary-color), #059669);">
+                        <i class="bi bi-cloud-arrow-up"></i> Upload & Process
+                    </button>
+                </form>
             </div>
-
-            <div class="card mt-4 border-0 shadow-sm">
-                <div class="card-body">
-                    <h6 class="fw-bold text-muted"><i class="bi bi-table me-2"></i> Expected CSV Format</h6>
-                    <table class="table table-sm table-bordered mt-2 text-center" style="font-size: 0.9rem;">
-                        <thead class="bg-light">
-                            <tr>
-                                <th>Student Name</th>
-                                <th>GPA</th>
-                                <th>Failed_Subjects</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>UPRETI NITESH</td>
-                                <td>X</td>
-                                <td>MATH 101, COMP 102</td>
-                            </tr>
-                        </tbody>
-                    </table>
+            
+            {% if messages %}
+                <div style="margin-top: 1.5rem;">
+                    {% for message in messages %}
+                        <div class="alert-modern alert-{% if message.tags == 'error' %}danger{% else %}success{% endif %}">
+                            <i class="bi bi-{% if message.tags == 'error' %}exclamation-circle-fill{% else %}check-circle-fill{% endif %}"></i>
+                            <div>{{ message }}</div>
+                        </div>
+                    {% endfor %}
                 </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Expected Format Section -->
+<div class="card-modern">
+    <div class="card-header-modern">
+        <h4 style="margin: 0; font-size: 1.1rem;">
+            <i class="bi bi-table me-2"></i>CSV Format Example
+        </h4>
+    </div>
+    
+    <div class="card-body-modern">
+        <p class="text-muted" style="margin-bottom: 1.5rem;">Your CSV file should have the following structure:</p>
+        <div style="overflow-x: auto;">
+            <table class="table-modern" style="width: 100%;">
+                <thead>
+                    <tr>
+                        <th>Student Name</th>
+                        <th>Registration No</th>
+                        <th>Semester</th>
+                        <th>GPA</th>
+                        <th>Failed Subjects</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>UPRETI NITESH</strong></td>
+                        <td>REG001</td>
+                        <td>3</td>
+                        <td>2.5</td>
+                        <td>MATH 101, COMP 102</td>
+                    </tr>
+                    <tr>
+                        <td><strong>JOHN SMITH</strong></td>
+                        <td>REG002</td>
+                        <td>3</td>
+                        <td>3.2</td>
+                        <td>PHYS 201</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="alert-modern alert-warning mt-3">
+            <i class="bi bi-exclamation-triangle-fill"></i>
+            <div>
+                <strong>Tip:</strong> Make sure your CSV headers match exactly (case-insensitive). The system will map columns automatically.
             </div>
         </div>
     </div>
 </div>
+
+<style>
+    .import-method-btn {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 1.25rem 1.5rem;
+        cursor: pointer;
+        transition: var(--transition);
+        color: inherit;
+        text-decoration: none;
+    }
+    
+    .import-method-btn:hover {
+        background: var(--gray-50);
+        text-decoration: none;
+    }
+    
+    .import-method-btn i:first-child {
+        font-size: 1.5rem;
+        color: var(--primary-color);
+        flex-shrink: 0;
+    }
+    
+    .import-method-btn .bi-chevron-right {
+        color: var(--gray-400);
+    }
+    
+    .file-input-wrapper {
+        position: relative;
+        margin: 1.5rem 0;
+    }
+    
+    .file-input {
+        display: none;
+    }
+    
+    .file-label {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 0.75rem;
+        padding: 2rem;
+        border: 2px dashed var(--primary-color);
+        border-radius: 10px;
+        background: var(--primary-light);
+        cursor: pointer;
+        transition: var(--transition);
+        color: var(--primary-dark);
+        font-weight: 500;
+    }
+    
+    .file-label:hover {
+        background: var(--primary-color);
+        color: #fff;
+        border-color: var(--primary-dark);
+    }
+    
+    .file-label i {
+        font-size: 2rem;
+    }
+    
+    .file-input:focus + .file-label {
+        outline: 2px solid var(--primary-color);
+        outline-offset: 2px;
+    }
+    
+    .w-100 {
+        width: 100%;
+    }
+    
+    .mt-3 {
+        margin-top: 1.5rem;
+    }
+    
+    .inline-block {
+        display: inline-block;
+    }
+    
+    @media (max-width: 1024px) {
+        [style*="grid-template-columns"] {
+            grid-template-columns: 1fr !important;
+        }
+    }
+</style>
+
+<script>
+    function updateFileName(input) {
+        const fileName = document.getElementById('fileName');
+        if (input.files && input.files[0]) {
+            fileName.textContent = input.files[0].name;
+            fileName.parentElement.style.borderColor = 'var(--secondary-color)';
+            fileName.parentElement.style.background = '#d1fae5';
+        }
+    }
+    
+    // Drag and drop support
+    const fileInput = document.getElementById('gpaFile');
+    const fileLabel = fileInput?.nextElementSibling;
+    
+    if (fileLabel) {
+        fileLabel.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            fileLabel.style.borderColor = 'var(--secondary-color)';
+            fileLabel.style.background = '#d1fae5';
+        });
+        
+        fileLabel.addEventListener('dragleave', () => {
+            fileLabel.style.borderColor = 'var(--primary-color)';
+            fileLabel.style.background = 'var(--primary-light)';
+        });
+        
+        fileLabel.addEventListener('drop', (e) => {
+            e.preventDefault();
+            fileInput.files = e.dataTransfer.files;
+            updateFileName(fileInput);
+        });
+    }
+</script>
+
 {% endblock %}

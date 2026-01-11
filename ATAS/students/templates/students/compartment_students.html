@@ -1,114 +1,250 @@
 {% extends 'core/admin_base.html' %} 
 
-{% block title %}Compartment Students{% endblock %}
-{% block page_title %}Compartment Students{% endblock %}
+{% block title %}Compartment Students - ATAS{% endblock %}
 
 {% block content %}
-<div class="row">
-    <div class="col-12">
-        <div class="card shadow-sm border-0">
-            <div class="card-header bg-white border-bottom py-3 d-flex justify-content-between align-items-center">
-                <h5 class="mb-0 fw-bold text-dark">Active Compartment Records ({{ students.count }})</h5>
-                <div>
-                    <a href="#" class="btn btn-outline-danger btn-sm me-2">
-                        <i class="bi bi-bell-fill me-1"></i> Alert Selected
-                    </a>
-                    <a href="#" class="btn btn-outline-secondary btn-sm">
-                        <i class="bi bi-file-earmark-spreadsheet me-1"></i> Export Data
-                    </a>
-                </div>
-            </div>
-            
-            <div class="card-body p-0">
-                <div class="table-responsive">
-                    <table class="table table-hover table-striped mb-0 align-middle">
-                        <thead class="table-light">
-                            <tr>
-                                <th scope="col" style="width: 50px;">#</th>
-                                <th scope="col">Reg. No</th>
-                                <th scope="col">Name</th>
-                                <th scope="col">Semester</th>
-                                <th scope="col" class="text-center">Subjects Failed</th>
-                                <th scope="col">Email</th>
-                                <th scope="col" style="width: 150px;">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for student in students %}
-                            <tr>
-                                <td>{{ forloop.counter }}</td>
-                                <td class="fw-bold">{{ student.registration_number }}</td>
-                                <td>{{ student.name }}</td>
-                                <td>{{ student.semester }}</td>
-                                <td class="text-center">
-                                    <span class="badge bg-warning text-dark rounded-pill px-3 py-2">
-                                        {{ student.uncleared_count }}
-                                    </span>
-                                </td>
-                                <td>{{ student.email }}</td>
-                                <td>
-                                    <button class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#detailModal{{ student.id }}" aria-label="View Details">
-                                        <i class="bi bi-eye"></i>
-                                    </button>
-                                    <button class="btn btn-success btn-sm ms-1" title="Mark as Cleared">
-                                        <i class="bi bi-check-lg"></i>
-                                    </button>
-                                </td>
-                            </tr>
-                            {% empty %}
-                            <tr>
-                                <td colspan="7" class="text-center text-muted py-4">
-                                    <i class="bi bi-info-circle me-2"></i> No active compartment records found.
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+<!-- Page Header -->
+<div class="d-flex justify-between align-center mb-4">
+    <div>
+        <h1 class="font-bold" style="font-size: 2rem; color: var(--gray-900); margin: 0;">
+            <i class="bi bi-clipboard-check me-2"></i>Compartment Tracking
+        </h1>
+        <p class="text-muted mt-1" style="margin-bottom: 0;">Manage and track students with active compartment cases</p>
+    </div>
+    <div class="gap-2" style="display: flex; gap: 1rem;">
+        <button class="btn-danger-modern btn-sm-modern" title="Alert selected students">
+            <i class="bi bi-bell-fill"></i> Alert Selected
+        </button>
+        <button class="btn-secondary-modern btn-sm-modern" title="Export data">
+            <i class="bi bi-file-earmark-spreadsheet"></i> Export Data
+        </button>
+    </div>
+</div>
+
+<!-- Compartment Records Table -->
+<div class="card-modern">
+    <div class="card-header-modern">
+        <h3 style="margin: 0; font-size: 1.25rem;">
+            <i class="bi bi-table me-2"></i>Active Compartment Records
+            <span class="badge-modern badge-warning" style="margin-left: 1rem;">{{ students.count }} Students</span>
+        </h3>
+    </div>
+    
+    <div class="card-body-modern p-0">
+        <div style="overflow-x: auto;">
+            <table class="table-modern" style="width: 100%; margin-bottom: 0;">
+                <thead>
+                    <tr>
+                        <th style="width: 50px;">#</th>
+                        <th>Reg. No</th>
+                        <th>Name</th>
+                        <th>Semester</th>
+                        <th style="text-align: center;">Failed Subjects</th>
+                        <th>Email</th>
+                        <th style="width: 120px; text-align: center;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for student in students %}
+                    <tr>
+                        <td>{{ forloop.counter }}</td>
+                        <td>
+                            <code style="background: var(--gray-100); padding: 0.25rem 0.5rem; border-radius: 4px;">
+                                {{ student.registration_number }}
+                            </code>
+                        </td>
+                        <td>
+                            <strong>{{ student.name }}</strong>
+                        </td>
+                        <td>
+                            <span class="badge-modern badge-primary">Sem {{ student.semester }}</span>
+                        </td>
+                        <td style="text-align: center;">
+                            <span class="badge-modern badge-danger">
+                                {{ student.uncleared_count }} Subjects
+                            </span>
+                        </td>
+                        <td style="font-size: 0.9rem; color: var(--gray-500);">{{ student.email }}</td>
+                        <td style="text-align: center;">
+                            <button 
+                                class="btn-secondary-modern btn-sm-modern" 
+                                onclick="openDetailModal('{{ student.id }}')"
+                                title="View Details"
+                            >
+                                <i class="bi bi-eye"></i>
+                            </button>
+                            <button class="btn-success-modern btn-sm-modern" title="Mark as Cleared">
+                                <i class="bi bi-check-lg"></i>
+                            </button>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7" style="padding: 3rem 1.5rem; text-align: center;">
+                            <i class="bi bi-inbox" style="font-size: 3rem; color: var(--gray-300); display: block; margin-bottom: 1rem;"></i>
+                            <p class="text-muted">No active compartment records found.</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
         </div>
     </div>
 </div>
 
-{% comment %} 
-    Modal for viewing specific failed subjects for a student.
-    A good web-like design uses modals to show detail without leaving the page.
-{% endcomment %}
+<!-- Detail Modals -->
 {% for student in students %}
-<div class="modal fade" id="detailModal{{ student.id }}" tabindex="-1" aria-labelledby="detailModalLabel{{ student.id }}" aria-hidden="true">
-  <div class="modal-dialog modal-lg">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title fw-bold" id="detailModalLabel{{ student.id }}">Compartment Details: {{ student.registration_number }}</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <h6 class="text-muted mb-3">Unresolved Subjects (Grade 'F')</h6>
-        <ul class="list-group">
-            {% for record in student.compart_records.all %}
-                {% if not record.is_cleared %}
-                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                        <div>
-                            <span class="fw-bold">{{ record.subject_code }}</span> 
-                            - {{ record.subject_name|default:"(Name not available)" }}
+<div id="detailModal{{ student.id }}" class="modal-overlay" onclick="closeDetailModal(this)">
+    <div class="modal-content" onclick="event.stopPropagation()">
+        <div class="modal-header">
+            <h3 style="margin: 0;">Compartment Details</h3>
+            <button class="modal-close" onclick="closeDetailModal(document.getElementById('detailModal{{ student.id }}'))">
+                <i class="bi bi-x"></i>
+            </button>
+        </div>
+        
+        <div class="modal-body">
+            <div style="margin-bottom: 1.5rem;">
+                <h5 class="font-bold" style="color: var(--gray-900);">{{ student.registration_number }} - {{ student.name }}</h5>
+                <p class="text-muted" style="margin-bottom: 0;">Semester {{ student.semester }}</p>
+            </div>
+            
+            <h6 class="font-semibold" style="color: var(--gray-700); margin-bottom: 1rem;">Unresolved Subjects</h6>
+            <div class="gap-2" style="display: flex; flex-direction: column; gap: 0.75rem;">
+                {% for record in student.compart_records.all %}
+                    {% if not record.is_cleared %}
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 1rem; background: var(--gray-50); border-radius: 8px; border-left: 4px solid var(--danger-color);">
+                            <div>
+                                <strong style="color: var(--gray-900);">{{ record.subject_code }}</strong>
+                                <p style="margin: 0.25rem 0 0 0; color: var(--gray-600); font-size: 0.9rem;">{{ record.subject_name|default:"(Name not available)" }}</p>
+                            </div>
+                            <span class="badge-modern badge-danger">Grade: {{ record.grade }}</span>
                         </div>
-                        <span class="badge bg-danger">Grade: {{ record.grade }}</span>
-                    </li>
-                {% endif %}
-            {% empty %}
-                 <li class="list-group-item text-center text-success">
-                    <i class="bi bi-check-circle me-1"></i> All subjects appear cleared.
-                 </li>
-            {% endfor %}
-        </ul>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-        <button type="button" class="btn btn-primary">Send Email Alert</button>
-      </div>
+                    {% endif %}
+                {% empty %}
+                    <div style="text-align: center; padding: 2rem; color: var(--secondary-color);">
+                        <i class="bi bi-check-circle-fill" style="font-size: 2rem; display: block; margin-bottom: 0.5rem;"></i>
+                        All subjects appear cleared.
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+        
+        <div class="modal-footer">
+            <button class="btn-secondary-modern" onclick="closeDetailModal(document.getElementById('detailModal{{ student.id }}'))">
+                <i class="bi bi-x-circle"></i> Close
+            </button>
+            <button class="btn-primary-modern">
+                <i class="bi bi-envelope"></i> Send Alert Email
+            </button>
+        </div>
     </div>
-  </div>
 </div>
 {% endfor %}
+
+<!-- Modal Styles -->
+<style>
+    .modal-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 1000;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .modal-overlay.active {
+        display: flex;
+    }
+    
+    .modal-content {
+        background: #fff;
+        border-radius: 12px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        max-width: 600px;
+        width: 90%;
+        max-height: 80vh;
+        overflow-y: auto;
+        animation: slideUp 0.3s ease;
+    }
+    
+    @keyframes slideUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1.5rem;
+        border-bottom: 1px solid var(--gray-200);
+    }
+    
+    .modal-close {
+        background: none;
+        border: none;
+        font-size: 1.5rem;
+        cursor: pointer;
+        color: var(--gray-500);
+        transition: var(--transition);
+    }
+    
+    .modal-close:hover {
+        color: var(--gray-900);
+    }
+    
+    .modal-body {
+        padding: 1.5rem;
+    }
+    
+    .modal-footer {
+        display: flex;
+        gap: 1rem;
+        justify-content: flex-end;
+        padding: 1.5rem;
+        border-top: 1px solid var(--gray-200);
+    }
+    
+    @media (max-width: 600px) {
+        .modal-content {
+            width: 95%;
+            max-height: 90vh;
+        }
+        
+        .modal-footer {
+            flex-direction: column-reverse;
+        }
+        
+        .modal-footer button {
+            width: 100%;
+        }
+    }
+</style>
+
+<script>
+    function openDetailModal(studentId) {
+        const modal = document.getElementById('detailModal' + studentId);
+        if (modal) {
+            modal.classList.add('active');
+        }
+    }
+    
+    function closeDetailModal(modalElement) {
+        if (modalElement) {
+            modalElement.classList.remove('active');
+        }
+    }
+</script>
 
 {% endblock %}

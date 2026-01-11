@@ -1,49 +1,111 @@
 {% extends 'core/admin_base.html' %}
 
-{% block page_title %}Dashboard Overview{% endblock %}
+{% block title %}Dashboard - ATAS{% endblock %}
 
 {% block content %}
-<div class="row g-4">
-    <div class="col-md-4">
-        <div class="card border-0 shadow-sm p-4 text-center">
-            <h6 class="text-muted">Total Students</h6>
-            <h2 class="display-5 fw-bold">{{ total_students }}</h2>
-        </div>
-    </div>
-    <div class="col-md-4">
-        <div class="card border-0 shadow-sm p-4 text-center" style="border-left: 5px solid #dc3545 !important;">
-            <h6 class="text-muted">Compartment Cases</h6>
-            <h2 class="display-5 fw-bold text-danger">{{ compartment_students }}</h2>
-        </div>
+<!-- Page Header -->
+<div class="d-flex justify-between align-center mb-4">
+    <div>
+        <h1 class="font-bold" style="font-size: 2rem; color: var(--gray-900); margin: 0;">Dashboard Overview</h1>
+        <p class="text-muted mt-1" style="margin-bottom: 0;">Welcome back! Here's a summary of your academic tracking system.</p>
     </div>
 </div>
 
-<div class="mt-5">
-    <h4 class="fw-bold mb-4">Recently Flagged Students</h4>
-    <div class="card border-0 shadow-sm">
-        <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0">
-                <thead class="table-light">
+<!-- Stat Cards -->
+<div class="gap-3 mb-4" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));">
+    <div class="stat-card">
+        <div class="stat-card-icon primary">
+            <i class="bi bi-people-fill"></i>
+        </div>
+        <div class="stat-card-label">Total Students</div>
+        <div class="stat-card-value">{{ total_students }}</div>
+    </div>
+    
+    <div class="stat-card">
+        <div class="stat-card-icon warning">
+            <i class="bi bi-exclamation-triangle-fill"></i>
+        </div>
+        <div class="stat-card-label">Compartment Cases</div>
+        <div class="stat-card-value" style="color: var(--warning-color);">{{ compartment_students }}</div>
+    </div>
+    
+    <div class="stat-card">
+        <div class="stat-card-icon danger">
+            <i class="bi bi-graph-down"></i>
+        </div>
+        <div class="stat-card-label">Alerts Pending</div>
+        <div class="stat-card-value" style="color: var(--danger-color);">0</div>
+    </div>
+    
+    <div class="stat-card">
+        <div class="stat-card-icon success">
+            <i class="bi bi-check-circle-fill"></i>
+        </div>
+        <div class="stat-card-label">Cleared Cases</div>
+        <div class="stat-card-value" style="color: var(--secondary-color);">0</div>
+    </div>
+</div>
+
+<!-- Recently Flagged Students Section -->
+<div class="card-modern">
+    <div class="card-header-modern d-flex justify-between align-center">
+        <div>
+            <h3 style="font-size: 1.25rem;">
+                <i class="bi bi-exclamation-circle me-2"></i>Recently Flagged Students
+            </h3>
+            <p class="text-muted" style="margin-bottom: 0; font-size: 0.9rem;">Students with failing grades or GPA issues</p>
+        </div>
+    </div>
+    
+    <div class="card-body-modern p-0">
+        <div style="overflow-x: auto;">
+            <table class="table-modern" style="width: 100%;">
+                <thead>
                     <tr>
                         <th>Student Name</th>
+                        <th>Reg. Number</th>
                         <th>Subject</th>
-                        <th>GPA/Grade</th>
+                        <th>Grade</th>
                         <th>Status</th>
+                        <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for record in recent_flags %}
                     <tr>
-                        <td><strong>{{ record.student.name }}</strong></td>
+                        <td>
+                            <strong>{{ record.student.name }}</strong>
+                        </td>
+                        <td>
+                            <code style="background: var(--gray-100); padding: 0.25rem 0.5rem; border-radius: 4px;">
+                                {{ record.student.registration_number }}
+                            </code>
+                        </td>
                         <td>{{ record.subject_name }}</td>
-                        <td><span class="badge bg-danger">{{ record.grade }}</span></td>
-                        <td><span class="badge rounded-pill bg-warning text-dark">Pending Alert</span></td>
+                        <td>
+                            <span class="badge-modern badge-danger">
+                                Grade: {{ record.grade }}
+                            </span>
+                        </td>
+                        <td>
+                            <span class="badge-modern badge-warning">
+                                <i class="bi bi-exclamation-circle"></i> Pending Alert
+                            </span>
+                        </td>
+                        <td>
+                            <button class="btn-secondary-modern btn-sm-modern" title="View details">
+                                <i class="bi bi-eye"></i>
+                            </button>
+                        </td>
                     </tr>
                     {% empty %}
                     <tr>
-                        <td colspan="4" class="text-center py-5 text-muted">
-                            <i class="bi bi-inbox fs-1 d-block mb-3"></i>
-                            No data found. Upload a GPA sheet to begin tracking.
+                        <td colspan="6" class="text-center" style="padding: 3rem 1.5rem;">
+                            <i class="bi bi-inbox" style="font-size: 3rem; color: var(--gray-300); display: block; margin-bottom: 1rem;"></i>
+                            <p class="text-muted">No recent flags. Upload a GPA sheet to begin tracking.</p>
+                            <a href="{% url 'upload_gpa' %}" class="btn-primary-modern mt-2 inline-block">
+                                <i class="bi bi-plus-circle"></i> Upload Records
+                            </a>
                         </td>
                     </tr>
                     {% endfor %}
@@ -51,5 +113,15 @@
             </table>
         </div>
     </div>
+</div>
+
+<!-- Quick Actions -->
+<div class="gap-2 mt-4" style="display: flex; flex-wrap: wrap;">
+    <a href="{% url 'upload_gpa' %}" class="btn-primary-modern">
+        <i class="bi bi-cloud-arrow-up"></i> Import New Records
+    </a>
+    <a href="{% url 'compartment_students' %}" class="btn-secondary-modern">
+        <i class="bi bi-list-check"></i> View All Compartments
+    </a>
 </div>
 {% endblock %}

@@ -1,93 +1,286 @@
 {% extends 'core/admin_base.html' %}
+
+{% block title %}Image OCR Import - ATAS{% endblock %}
+
 {% block content %}
-<div class="container py-4">
-    <div class="row">
-        <div class="col-md-3">
-            <div class="card shadow-sm border-0 mb-4">
-                <div class="card-header bg-dark text-white fw-bold">Import Methods</div>
-                <div class="list-group list-group-flush">
-                    <a href="{% url 'import_records' %}" class="list-group-item list-group-item-action active">
-                        <i class="bi bi-image-fill me-2"></i> Image OCR (KU Sheet)
-                    </a>
-                    <a href="{% url 'upload_gpa' %}" class="list-group-item list-group-item-action">
-                        <i class="bi bi-file-earmark-spreadsheet-fill me-2"></i> GPA Sheet (CSV/Excel)
-                    </a>
-                </div>
+<!-- Page Header -->
+<div class="mb-4">
+    <h1 class="font-bold" style="font-size: 2rem; color: var(--gray-900); margin: 0;">
+        <i class="bi bi-camera me-2"></i>Transcript Data Extraction
+    </h1>
+    <p class="text-muted mt-1" style="margin-bottom: 0;">Scan or upload KU academic result sheets to extract student data automatically</p>
+</div>
+
+<div style="display: grid; grid-template-columns: 300px 1fr; gap: 2rem;">
+    <!-- Left Sidebar: Import Methods -->
+    <div>
+        <div class="card-modern">
+            <div class="card-header-modern">
+                <h4 style="margin: 0; font-size: 1rem;">
+                    <i class="bi bi-sliders me-2"></i>Import Method
+                </h4>
             </div>
             
-            <div class="alert alert-info border-0 shadow-sm" style="font-size: 0.85rem;">
-                <i class="bi bi-info-circle-fill me-1"></i> 
-                <strong>Tip:</strong> For best results, use the <b>Upload Image</b> option with a high-resolution photo of the transcript.
+            <div class="card-body-modern p-0">
+                <div style="display: flex; flex-direction: column;">
+                    <div class="import-method-btn" style="background: var(--primary-light); border-left: 4px solid var(--primary-color);">
+                        <i class="bi bi-camera-fill" style="color: var(--primary-color);"></i>
+                        <div style="flex: 1;">
+                            <div class="font-semibold" style="color: var(--primary-dark);">Image OCR</div>
+                            <small class="text-muted">Current method</small>
+                        </div>
+                        <i class="bi bi-check-circle-fill" style="color: var(--primary-color);"></i>
+                    </div>
+                    <a href="{% url 'upload_gpa' %}" class="import-method-btn" style="border-bottom: 1px solid var(--gray-200);">
+                        <i class="bi bi-file-earmark-spreadsheet-fill"></i>
+                        <div style="flex: 1;">
+                            <div class="font-semibold">CSV Upload</div>
+                            <small class="text-muted">GPA Sheet</small>
+                        </div>
+                        <i class="bi bi-chevron-right"></i>
+                    </a>
+                </div>
             </div>
         </div>
-
-        <div class="col-md-9">
-            <div class="card shadow-sm border-0">
-                <div class="card-header bg-primary text-white p-3">
-                    <h5 class="mb-0"><i class="bi bi-scan me-2"></i> Transcript Data Extraction</h5>
+        
+        <!-- Info Box -->
+        <div class="alert-modern alert-info mt-3">
+            <i class="bi bi-lightbulb-fill"></i>
+            <div>
+                <strong>Pro Tip</strong>
+                <p style="margin: 0.5rem 0 0 0; font-size: 0.9rem;">Use high-resolution photos of official transcripts for best accuracy.</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Main Content: Upload Area -->
+    <div>
+        <!-- Tab Buttons -->
+        <div class="tab-buttons" style="display: flex; gap: 1rem; margin-bottom: 1.5rem; border-bottom: 2px solid var(--gray-200);">
+            <button onclick="switchInput('file')" id="btn-file" class="tab-btn active">
+                <i class="bi bi-cloud-upload me-2"></i> Upload Image
+            </button>
+            <button onclick="switchInput('cam')" id="btn-cam" class="tab-btn">
+                <i class="bi bi-camera me-2"></i> Use Camera
+            </button>
+        </div>
+        
+        <!-- File Upload Section -->
+        <div id="file-section" class="card-modern">
+            <div class="card-body-modern text-center">
+                <div style="margin-bottom: 2rem;">
+                    <div style="font-size: 3rem; color: var(--primary-color); margin-bottom: 1rem;">
+                        <i class="bi bi-image"></i>
+                    </div>
+                    
+                    <h4 class="font-bold" style="color: var(--gray-900);">Select Academic Record Photo</h4>
+                    <p class="text-muted mb-4">Upload a clear photo of your KU result sheet</p>
+                    
+                    <div class="file-input-wrapper">
+                        <input 
+                            type="file" 
+                            id="filePicker" 
+                            class="file-input"
+                            accept="image/*"
+                            onchange="uploadImage(event)"
+                        >
+                        <label for="filePicker" class="file-label">
+                            <i class="bi bi-folder-open"></i>
+                            <span>Click to browse or drag image here</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Camera Section -->
+        <div id="cam-section" class="card-modern d-none">
+            <div class="card-body-modern text-center">
+                <div style="position: relative; width: 100%; background: #000; border-radius: 12px; overflow: hidden; margin-bottom: 1.5rem;">
+                    <video id="webcam" autoplay playsinline style="width: 100%; height: 400px; object-fit: cover;"></video>
+                </div>
+                <button onclick="takePhoto()" class="btn-danger-modern" style="width: 100%; padding: 1rem; font-size: 1.1rem;">
+                    <i class="bi bi-camera-fill me-2"></i> Capture & Analyze
+                </button>
+            </div>
+        </div>
+        
+        <canvas id="bufferCanvas" style="display: none;"></canvas>
+        
+        <!-- Processing State -->
+        <div id="processing" class="card-modern d-none">
+            <div class="card-body-modern text-center py-5">
+                <div style="display: inline-block; margin-bottom: 1.5rem;">
+                    <div class="spinner" style="
+                        width: 50px;
+                        height: 50px;
+                        border: 4px solid var(--gray-200);
+                        border-top-color: var(--primary-color);
+                        border-radius: 50%;
+                        animation: spin 0.8s linear infinite;
+                    "></div>
+                </div>
+                <p class="font-semibold" style="color: var(--primary-color); margin: 0;">
+                    <i class="bi bi-hourglass-split me-2"></i>Analyzing document...
+                </p>
+            </div>
+        </div>
+        
+        <!-- Results Card -->
+        <div id="results-card" class="card-modern d-none" style="border-left: 5px solid var(--secondary-color);">
+            <div class="card-header-modern" style="background: linear-gradient(135deg, var(--secondary-color), #059669);">
+                <h4 style="margin: 0; font-size: 1.1rem;">
+                    <i class="bi bi-check-circle-fill me-2"></i>Verification Dashboard
+                </h4>
+            </div>
+            
+            <div class="card-body-modern">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem;">
+                    <div class="form-group-modern">
+                        <label class="form-label-modern">
+                            <i class="bi bi-person-fill me-1" style="color: var(--primary-color);"></i>Student Name
+                        </label>
+                        <input type="text" id="res-name" class="form-control-modern font-bold" placeholder="Extracted name">
+                    </div>
+                    
+                    <div class="form-group-modern">
+                        <label class="form-label-modern">
+                            <i class="bi bi-percent me-1" style="color: var(--primary-color);"></i>GPA
+                        </label>
+                        <input type="text" id="res-gpa" class="form-control-modern" placeholder="Extracted GPA">
+                    </div>
                 </div>
                 
-                <div class="card-body p-4">
-                    <div class="d-flex justify-content-center mb-4">
-                        <div class="btn-group shadow-sm" role="group">
-                            <button type="button" onclick="switchInput('file')" class="btn btn-outline-primary px-4 active" id="btn-file">
-                                <i class="bi bi-cloud-upload me-1"></i> 1. Upload Image
-                            </button>
-                            <button type="button" onclick="switchInput('cam')" class="btn btn-outline-primary px-4" id="btn-cam">
-                                <i class="bi bi-camera me-1"></i> 2. Use Camera
-                            </button>
-                        </div>
-                    </div>
-
-                    <div id="file-section" class="py-5 border-dashed rounded bg-light text-center mb-3" style="border: 2px dashed #dee2e6;">
-                        <i class="bi bi-file-earmark-image display-4 text-muted"></i>
-                        <p class="mt-3 text-secondary fw-bold">Select KU Academic Record Photo</p>
-                        <input type="file" id="filePicker" class="form-control w-50 mx-auto" accept="image/*" onchange="uploadImage(event)">
-                    </div>
-
-                    <div id="cam-section" class="d-none text-center">
-                        <div class="position-relative d-inline-block w-100 bg-dark rounded overflow-hidden shadow-sm" style="height: 400px;">
-                            <video id="webcam" autoplay playsinline class="w-100 h-100" style="object-fit: cover;"></video>
-                        </div>
-                        <button onclick="takePhoto()" class="btn btn-danger btn-lg w-100 mt-3 fw-bold shadow">CAPTURE & ANALYZE</button>
-                    </div>
-
-                    <canvas id="bufferCanvas" class="d-none"></canvas>
-
-                    <div id="processing" class="d-none text-center my-5">
-                        <div class="spinner-grow text-primary" role="status"></div>
-                        <p class="mt-3 fw-bold text-primary">ATAS Engine Analyzing Document...</p>
-                    </div>
-
-                    <div id="results-card" class="d-none mt-4 p-4 border rounded-3 bg-white shadow-sm border-start border-5 border-primary">
-                        <h6 class="text-uppercase text-muted fw-bold mb-3">Verification Dashboard</h6>
-                        
-                        <div class="form-floating mb-3">
-                            <input type="text" id="res-name" class="form-control fw-bold border-primary" placeholder="Name">
-                            <label><i class="bi bi-person"></i> STUDENT NAME</label>
-                        </div>
-
-                        <div class="row">
-                            <div class="col-md-4">
-                                <div class="form-floating mb-3">
-                                    <input type="text" id="res-gpa" class="form-control" placeholder="GPA">
-                                    <label>GPA</label>
-                                </div>
-                            </div>
-                            <div class="col-md-8">
-                                <div class="form-floating mb-3">
-                                    <input type="text" id="res-failed" class="form-control text-danger fw-bold" placeholder="Failed Subjects">
-                                    <label>FAILED SUBJECTS (BACKLOGS)</label>
-                                </div>
-                            </div>
-                        </div>
-                        <button onclick="commitToSystem()" class="btn btn-success w-100 py-2 fw-bold shadow-sm mt-2">CONFIRM & RECORD DATA</button>
-                    </div>
+                <div class="form-group-modern">
+                    <label class="form-label-modern">
+                        <i class="bi bi-exclamation-triangle-fill me-1" style="color: var(--danger-color);"></i>Failed Subjects (Backlogs)
+                    </label>
+                    <input type="text" id="res-failed" class="form-control-modern" placeholder="Failed subjects" style="color: var(--danger-color); font-weight: 600;">
                 </div>
+                
+                <button onclick="commitToSystem()" class="btn-success-modern" style="width: 100%; padding: 1rem; margin-top: 1rem; font-weight: 600;">
+                    <i class="bi bi-cloud-check me-2"></i>Confirm & Record Data
+                </button>
             </div>
         </div>
     </div>
 </div>
+
+<style>
+    .d-none {
+        display: none;
+    }
+    
+    .tab-btn {
+        background: none;
+        border: none;
+        padding: 1rem 0;
+        font-size: 1rem;
+        font-weight: 600;
+        color: var(--gray-500);
+        cursor: pointer;
+        transition: var(--transition);
+        border-bottom: 3px solid transparent;
+        margin-bottom: -2px;
+    }
+    
+    .tab-btn:hover {
+        color: var(--primary-color);
+    }
+    
+    .tab-btn.active {
+        color: var(--primary-color);
+        border-bottom-color: var(--primary-color);
+    }
+    
+    .import-method-btn {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 1.25rem 1.5rem;
+        cursor: pointer;
+        transition: var(--transition);
+        color: inherit;
+        text-decoration: none;
+    }
+    
+    .import-method-btn:hover {
+        background: var(--gray-50);
+        text-decoration: none;
+    }
+    
+    .import-method-btn i:first-child {
+        font-size: 1.5rem;
+        color: var(--primary-color);
+        flex-shrink: 0;
+    }
+    
+    .import-method-btn .bi-chevron-right {
+        color: var(--gray-400);
+    }
+    
+    .file-input-wrapper {
+        position: relative;
+        margin: 1.5rem 0;
+    }
+    
+    .file-input {
+        display: none;
+    }
+    
+    .file-label {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 0.75rem;
+        padding: 2.5rem;
+        border: 2px dashed var(--primary-color);
+        border-radius: 12px;
+        background: var(--primary-light);
+        cursor: pointer;
+        transition: var(--transition);
+        color: var(--primary-dark);
+        font-weight: 500;
+    }
+    
+    .file-label:hover {
+        background: var(--primary-color);
+        color: #fff;
+        border-color: var(--primary-dark);
+    }
+    
+    .file-label i {
+        font-size: 2.5rem;
+    }
+    
+    .file-input:focus + .file-label {
+        outline: 2px solid var(--primary-color);
+        outline-offset: 2px;
+    }
+    
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+    
+    .spinner {
+        display: inline-block;
+    }
+    
+    .form-group-modern {
+        margin-bottom: 1.5rem;
+    }
+    
+    .form-group-modern:last-child {
+        margin-bottom: 0;
+    }
+    
+    @media (max-width: 1024px) {
+        [style*="grid-template-columns: 300px"] {
+            grid-template-columns: 1fr !important;
+        }
+    }
+</style>
 
 <script>
     const video = document.getElementById('webcam');
@@ -96,15 +289,23 @@
     let isFailing = false;
 
     function switchInput(mode) {
-        document.getElementById('file-section').classList.toggle('d-none', mode !== 'file');
-        document.getElementById('cam-section').classList.toggle('d-none', mode !== 'cam');
-        document.getElementById('btn-file').classList.toggle('active', mode === 'file');
-        document.getElementById('btn-cam').classList.toggle('active', mode === 'cam');
+        const fileSection = document.getElementById('file-section');
+        const camSection = document.getElementById('cam-section');
+        const btnFile = document.getElementById('btn-file');
+        const btnCam = document.getElementById('btn-cam');
         
-        if(mode === 'cam') {
-            startWebcam();
-        } else {
+        if (mode === 'file') {
+            fileSection.classList.remove('d-none');
+            camSection.classList.add('d-none');
+            btnFile.classList.add('active');
+            btnCam.classList.remove('active');
             stopWebcam();
+        } else {
+            fileSection.classList.add('d-none');
+            camSection.classList.remove('d-none');
+            btnFile.classList.remove('active');
+            btnCam.classList.add('active');
+            startWebcam();
         }
     }
 
@@ -115,7 +316,8 @@
             });
             video.srcObject = stream;
         } catch (err) {
-            alert("Could not access camera: " + err.message);
+            console.error("Camera access error:", err);
+            showNotification("Could not access camera: " + err.message, 'error');
         }
     }
 
@@ -145,21 +347,29 @@
         document.getElementById('processing').classList.remove('d-none');
         document.getElementById('results-card').classList.add('d-none');
 
-        const response = await fetch('/students/process-scan/', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json', 'X-CSRFToken': '{{ csrf_token }}'},
-            body: JSON.stringify({ image: base64Data })
-        });
-        const data = await response.json();
+        try {
+            const response = await fetch('/students/process-scan/', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json', 'X-CSRFToken': '{{ csrf_token }}'},
+                body: JSON.stringify({ image: base64Data })
+            });
+            const data = await response.json();
 
-        document.getElementById('processing').classList.add('d-none');
-        
-        if (data.status === 'success') {
-            document.getElementById('results-card').classList.remove('d-none');
-            document.getElementById('res-name').value = data.extracted_data.name;
-            document.getElementById('res-gpa').value = data.extracted_data.gpa;
-            document.getElementById('res-failed').value = data.extracted_data.failed_subjects;
-            isFailing = data.is_failing;
+            document.getElementById('processing').classList.add('d-none');
+            
+            if (data.status === 'success') {
+                document.getElementById('results-card').classList.remove('d-none');
+                document.getElementById('res-name').value = data.extracted_data.name || '';
+                document.getElementById('res-gpa').value = data.extracted_data.gpa || '';
+                document.getElementById('res-failed').value = data.extracted_data.failed_subjects || '';
+                isFailing = data.is_failing || false;
+                showNotification('Data extracted successfully!', 'success');
+            } else {
+                showNotification(data.error || 'Failed to process image', 'error');
+            }
+        } catch (err) {
+            document.getElementById('processing').classList.add('d-none');
+            showNotification('Error processing image: ' + err.message, 'error');
         }
     }
 
@@ -171,21 +381,31 @@
             is_failing: isFailing
         };
         
-        const response = await fetch('/students/save-verified/', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json', 'X-CSRFToken': '{{ csrf_token }}'},
-            body: JSON.stringify(payload)
-        });
-        const result = await response.json();
-        if(result.status === 'success') {
-            alert("Sync Complete: Record for " + payload.name + " saved.");
-            location.reload();
+        if (!payload.name.trim()) {
+            showNotification('Please enter student name', 'warning');
+            return;
+        }
+        
+        try {
+            const response = await fetch('/students/save-verified/', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json', 'X-CSRFToken': '{{ csrf_token }}'},
+                body: JSON.stringify(payload)
+            });
+            const result = await response.json();
+            
+            if(result.status === 'success') {
+                showNotification("Record for " + payload.name + " saved successfully!", 'success', 3000);
+                setTimeout(() => {
+                    location.reload();
+                }, 1500);
+            } else {
+                showNotification(result.error || 'Failed to save record', 'error');
+            }
+        } catch (err) {
+            showNotification('Error saving record: ' + err.message, 'error');
         }
     }
 </script>
 
-<style>
-    .border-dashed { border-style: dashed !important; }
-    .btn-group .btn { transition: all 0.2s; }
-</style>
 {% endblock %}

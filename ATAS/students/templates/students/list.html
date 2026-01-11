@@ -1,66 +1,114 @@
-{% extends 'core/admin_base.html' %} {% block title %}ATAS | Academic Alert System{% endblock %}
+{% extends 'core/admin_base.html' %}
+
+{% block title %}Academic Alert System - ATAS{% endblock %}
 
 {% block content %}
-<div class="row mb-4 align-items-center">
-    <div class="col-md-8">
-        <h2 class="fw-bold text-primary mb-1">
-            <i class="bi bi-exclamation-triangle-fill"></i> Academic Alert System
-        </h2>
-        <p class="text-muted mb-0">Tracking students with backlogs or GPA issues in the current cycle.</p>
+<!-- Page Header -->
+<div class="d-flex justify-between align-center mb-4">
+    <div>
+        <h1 class="font-bold" style="font-size: 2rem; color: var(--gray-900); margin: 0;">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i>Academic Alert System
+        </h1>
+        <p class="text-muted mt-1" style="margin-bottom: 0;">Tracking students with backlogs or GPA issues in the current cycle</p>
     </div>
-    <div class="col-md-4 text-md-end mt-3 mt-md-0">
-        <a href="{% url 'import_records' %}" class="btn btn-outline-primary shadow-sm rounded-pill px-4">
-            <i class="bi bi-plus-circle me-1"></i> New Scan
+    <div>
+        <a href="{% url 'import_records' %}" class="btn-primary-modern">
+            <i class="bi bi-plus-circle"></i> New Scan
         </a>
     </div>
 </div>
 
-<div class="card shadow-sm border-0">
-    <div class="card-body p-0">
-        <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0">
-                <thead class="bg-light text-muted">
+<!-- Alerts Table -->
+<div class="card-modern">
+    <div class="card-header-modern">
+        <h3 style="margin: 0; font-size: 1.25rem;">
+            <i class="bi bi-list-check me-2"></i>Active Alerts
+            <span class="badge-modern badge-danger" style="margin-left: 1rem;">{{ records.count }} Records</span>
+        </h3>
+    </div>
+    
+    <div class="card-body-modern p-0">
+        <div style="overflow-x: auto;">
+            <table class="table-modern" style="width: 100%; margin-bottom: 0;">
+                <thead>
                     <tr>
-                        <th class="ps-4 py-3">Student Identity</th>
+                        <th>Student Identity</th>
                         <th>Reg. Number</th>
                         <th>Semester</th>
                         <th>Issue Details</th>
-                        <th class="text-center pe-4">Status</th>
+                        <th style="text-align: center; width: 150px;">Status</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for record in records %}
                     <tr>
-                        <td class="ps-4 py-3">
-                            <div class="fw-bold text-dark">{{ record.student.name }}</div>
-                            <small class="text-muted">{{ record.student.email }}</small>
-                        </td>
-                        <td><code class="text-muted small">{{ record.student.registration_number }}</code></td>
-                        <td><span class="badge bg-light text-dark border">Semester {{ record.student.semester }}</span></td>
                         <td>
-                            <div class="text-danger fw-semibold">
-                                <i class="bi bi-file-earmark-text-fill me-1"></i> {{ record.subject_name }}
+                            <div>
+                                <strong style="color: var(--gray-900);">{{ record.student.name }}</strong>
+                                <br>
+                                <small class="text-muted">{{ record.student.email }}</small>
                             </div>
                         </td>
-                        <td class="text-center pe-4">
+                        <td>
+                            <code style="background: var(--gray-100); padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.9rem;">
+                                {{ record.student.registration_number }}
+                            </code>
+                        </td>
+                        <td>
+                            <span class="badge-modern badge-primary">Semester {{ record.student.semester }}</span>
+                        </td>
+                        <td>
+                            <div style="color: var(--danger-color); font-weight: 600;">
+                                <i class="bi bi-file-earmark-text-fill me-1"></i>{{ record.subject_name }}
+                            </div>
+                        </td>
+                        <td style="text-align: center;">
                             {% if record.is_cleared %}
-                                <span class="badge rounded-pill bg-success-subtle text-success border border-success px-3 py-2">Cleared</span>
+                                <span class="badge-modern badge-success">
+                                    <i class="bi bi-check-circle"></i> Cleared
+                                </span>
                             {% else %}
-                                <span class="badge rounded-pill bg-warning-subtle text-warning border border-warning px-3 py-2">Pending Alert</span>
+                                <span class="badge-modern badge-warning">
+                                    <i class="bi bi-exclamation-circle"></i> Pending
+                                </span>
                             {% endif %}
                         </td>
                     </tr>
                     {% empty %}
                     <tr>
-                        <td colspan="5" class="text-center py-5 text-muted">
-                            <i class="bi bi-shield-check fs-1 d-block mb-2 text-success"></i>
-                            No active academic alerts found.
+                        <td colspan="5" style="padding: 3rem 1.5rem; text-align: center;">
+                            <i class="bi bi-shield-check" style="font-size: 3rem; color: var(--secondary-color); display: block; margin-bottom: 1rem;"></i>
+                            <p class="text-muted" style="margin: 0 0 1rem 0;">No active academic alerts found.</p>
+                            <a href="{% url 'import_records' %}" class="btn-primary-modern">
+                                <i class="bi bi-plus-circle"></i> Start Tracking
+                            </a>
                         </td>
                     </tr>
                     {% endfor %}
                 </tbody>
             </table>
         </div>
+    </div>
+</div>
+
+<!-- Quick Stats -->
+<div class="gap-3 mt-4" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));">
+    <div class="stat-card">
+        <div class="stat-card-icon danger">
+            <i class="bi bi-exclamation-triangle-fill"></i>
+        </div>
+        <div class="stat-card-label">Pending Alerts</div>
+        <div class="stat-card-value" style="color: var(--danger-color);">
+            {{ records|dictsort:"is_cleared"|length }}
+        </div>
+    </div>
+    
+    <div class="stat-card">
+        <div class="stat-card-icon success">
+            <i class="bi bi-check-circle-fill"></i>
+        </div>
+        <div class="stat-card-label">Cleared Cases</div>
+        <div class="stat-card-value" style="color: var(--secondary-color);">0</div>
     </div>
 </div>
 {% endblock %}
