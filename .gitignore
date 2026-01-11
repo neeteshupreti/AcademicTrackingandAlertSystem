@@ -1,3 +1,6 @@
 venv/
 __pycache__/
 db.sqlite3
+# Ignore all markdown files except README.md
+*.md
+!README.md
