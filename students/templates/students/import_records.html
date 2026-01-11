@@ -56,7 +56,7 @@
     <!-- Main Content: Upload Area -->
     <div>
         <!-- Tab Buttons -->
-        <div class="tab-buttons" style="display: flex; gap: 1rem; margin-bottom: 1.5rem; border-bottom: 2px solid var(--gray-200);">
+        <div class="tab-buttons" style="display: flex; gap: 1rem; margin-bottom: 2rem; border-bottom: 2px solid var(--gray-200);">
             <button onclick="switchInput('file')" id="btn-file" class="tab-btn active">
                 <i class="bi bi-cloud-upload me-2"></i> Upload Image
             </button>
@@ -67,39 +67,37 @@
         
         <!-- File Upload Section -->
         <div id="file-section" class="card-modern">
-            <div class="card-body-modern text-center">
-                <div style="margin-bottom: 2rem;">
-                    <div style="font-size: 3rem; color: var(--primary-color); margin-bottom: 1rem;">
-                        <i class="bi bi-image"></i>
-                    </div>
-                    
-                    <h4 class="font-bold" style="color: var(--gray-900);">Select Academic Record Photo</h4>
-                    <p class="text-muted mb-4">Upload a clear photo of your KU result sheet</p>
-                    
-                    <div class="file-input-wrapper">
-                        <input 
-                            type="file" 
-                            id="filePicker" 
-                            class="file-input"
-                            accept="image/*"
-                            onchange="uploadImage(event)"
-                        >
-                        <label for="filePicker" class="file-label">
-                            <i class="bi bi-folder-open"></i>
-                            <span>Click to browse or drag image here</span>
-                        </label>
-                    </div>
+            <div class="card-body-modern text-center" style="min-height: 400px; display: flex; flex-direction: column; justify-content: center;">
+                <div style="font-size: 3rem; color: var(--primary); margin-bottom: 1rem;">
+                    <i class="bi bi-image"></i>
+                </div>
+                
+                <h4 class="font-bold" style="color: var(--gray-900); margin-bottom: 0.5rem;">Select Academic Record Photo</h4>
+                <p class="text-muted mb-4">Upload a clear photo of your KU result sheet</p>
+                
+                <div class="file-input-wrapper">
+                    <input 
+                        type="file" 
+                        id="filePicker" 
+                        class="file-input"
+                        accept="image/*"
+                        onchange="uploadImage(event)"
+                    >
+                    <label for="filePicker" class="file-label">
+                        <i class="bi bi-folder-open"></i>
+                        <span>Click to browse or drag image here</span>
+                    </label>
                 </div>
             </div>
         </div>
         
         <!-- Camera Section -->
         <div id="cam-section" class="card-modern d-none">
-            <div class="card-body-modern text-center">
-                <div style="position: relative; width: 100%; background: #000; border-radius: 12px; overflow: hidden; margin-bottom: 1.5rem;">
-                    <video id="webcam" autoplay playsinline style="width: 100%; height: 400px; object-fit: cover;"></video>
+            <div class="card-body-modern text-center" style="display: flex; flex-direction: column;">
+                <div style="position: relative; width: 100%; background: #000; border-radius: 8px; overflow: hidden; margin-bottom: 1.5rem; flex-grow: 1; min-height: 350px;">
+                    <video id="webcam" autoplay playsinline style="width: 100%; height: 100%; object-fit: cover;"></video>
                 </div>
-                <button onclick="takePhoto()" class="btn-danger-modern" style="width: 100%; padding: 1rem; font-size: 1.1rem;">
+                <button onclick="takePhoto()" class="btn-danger-modern w-100" style="padding: 1rem; font-size: 1.1rem; margin: 0;">
                     <i class="bi bi-camera-fill me-2"></i> Capture & Analyze
                 </button>
             </div>
@@ -109,26 +107,26 @@
         
         <!-- Processing State -->
         <div id="processing" class="card-modern d-none">
-            <div class="card-body-modern text-center py-5">
+            <div class="card-body-modern text-center" style="padding: 3rem 1.5rem; min-height: 400px; display: flex; flex-direction: column; align-items: center; justify-content: center;">
                 <div style="display: inline-block; margin-bottom: 1.5rem;">
                     <div class="spinner" style="
                         width: 50px;
                         height: 50px;
                         border: 4px solid var(--gray-200);
-                        border-top-color: var(--primary-color);
+                        border-top-color: var(--primary);
                         border-radius: 50%;
                         animation: spin 0.8s linear infinite;
                     "></div>
                 </div>
-                <p class="font-semibold" style="color: var(--primary-color); margin: 0;">
+                <p class="font-semibold" style="color: var(--primary); margin: 0;">
                     <i class="bi bi-hourglass-split me-2"></i>Analyzing document...
                 </p>
             </div>
         </div>
         
         <!-- Results Card -->
-        <div id="results-card" class="card-modern d-none" style="border-left: 5px solid var(--secondary-color);">
-            <div class="card-header-modern" style="background: linear-gradient(135deg, var(--secondary-color), #059669);">
+        <div id="results-card" class="card-modern d-none" style="border-left: 5px solid var(--secondary);">
+            <div class="card-header-modern" style="background: linear-gradient(135deg, var(--secondary), var(--secondary-dark));">
                 <h4 style="margin: 0; font-size: 1.1rem;">
                     <i class="bi bi-check-circle-fill me-2"></i>Verification Dashboard
                 </h4>
@@ -138,14 +136,14 @@
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem;">
                     <div class="form-group-modern">
                         <label class="form-label-modern">
-                            <i class="bi bi-person-fill me-1" style="color: var(--primary-color);"></i>Student Name
+                            <i class="bi bi-person-fill me-1" style="color: var(--primary);"></i>Student Name
                         </label>
                         <input type="text" id="res-name" class="form-control-modern font-bold" placeholder="Extracted name">
                     </div>
                     
                     <div class="form-group-modern">
                         <label class="form-label-modern">
-                            <i class="bi bi-percent me-1" style="color: var(--primary-color);"></i>GPA
+                            <i class="bi bi-percent me-1" style="color: var(--primary);"></i>GPA
                         </label>
                         <input type="text" id="res-gpa" class="form-control-modern" placeholder="Extracted GPA">
                     </div>
@@ -153,12 +151,12 @@
                 
                 <div class="form-group-modern">
                     <label class="form-label-modern">
-                        <i class="bi bi-exclamation-triangle-fill me-1" style="color: var(--danger-color);"></i>Failed Subjects (Backlogs)
+                        <i class="bi bi-exclamation-triangle-fill me-1" style="color: var(--danger);"></i>Failed Subjects (Backlogs)
                     </label>
-                    <input type="text" id="res-failed" class="form-control-modern" placeholder="Failed subjects" style="color: var(--danger-color); font-weight: 600;">
+                    <input type="text" id="res-failed" class="form-control-modern" placeholder="Failed subjects" style="color: var(--danger); font-weight: 600;">
                 </div>
                 
-                <button onclick="commitToSystem()" class="btn-success-modern" style="width: 100%; padding: 1rem; margin-top: 1rem; font-weight: 600;">
+                <button onclick="commitToSystem()" class="btn-success-modern w-100" style="padding: 1rem; margin-top: 1rem; font-weight: 600;">
                     <i class="bi bi-cloud-check me-2"></i>Confirm & Record Data
                 </button>
             </div>
@@ -179,18 +177,20 @@
         font-weight: 600;
         color: var(--gray-500);
         cursor: pointer;
-        transition: var(--transition);
         border-bottom: 3px solid transparent;
         margin-bottom: -2px;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
     }
     
     .tab-btn:hover {
-        color: var(--primary-color);
+        color: var(--primary);
     }
     
     .tab-btn.active {
-        color: var(--primary-color);
-        border-bottom-color: var(--primary-color);
+        color: var(--primary);
+        border-bottom-color: var(--primary);
     }
     
     .import-method-btn {
@@ -199,9 +199,11 @@
         gap: 1rem;
         padding: 1.25rem 1.5rem;
         cursor: pointer;
-        transition: var(--transition);
         color: inherit;
         text-decoration: none;
+        border: none;
+        background: none;
+        width: 100%;
     }
     
     .import-method-btn:hover {
@@ -211,7 +213,7 @@
     
     .import-method-btn i:first-child {
         font-size: 1.5rem;
-        color: var(--primary-color);
+        color: var(--primary);
         flex-shrink: 0;
     }
     
@@ -235,18 +237,17 @@
         justify-content: center;
         gap: 0.75rem;
         padding: 2.5rem;
-        border: 2px dashed var(--primary-color);
-        border-radius: 12px;
+        border: 2px dashed var(--primary);
+        border-radius: 8px;
         background: var(--primary-light);
         cursor: pointer;
-        transition: var(--transition);
         color: var(--primary-dark);
         font-weight: 500;
     }
     
     .file-label:hover {
-        background: var(--primary-color);
-        color: #fff;
+        background: var(--primary);
+        color: white;
         border-color: var(--primary-dark);
     }
     
@@ -255,7 +256,7 @@
     }
     
     .file-input:focus + .file-label {
-        outline: 2px solid var(--primary-color);
+        outline: 2px solid var(--primary);
         outline-offset: 2px;
     }
     

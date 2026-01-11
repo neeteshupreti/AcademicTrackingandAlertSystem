@@ -61,51 +61,49 @@
             </h4>
         </div>
         
-        <div class="card-body-modern text-center">
-            <div style="margin-bottom: 2rem;">
-                <div style="font-size: 3rem; color: var(--secondary-color); margin-bottom: 1rem;">
-                    <i class="bi bi-file-earmark-arrow-up"></i>
-                </div>
-                
-                <h4 class="font-bold" style="color: var(--gray-900);">Upload Result Sheet</h4>
-                <p class="text-muted mb-4">Select a .csv or .xlsx file from your computer</p>
-                
-                <form action="{% url 'upload_gpa' %}" method="POST" enctype="multipart/form-data" class="upload-form">
-                    {% csrf_token %}
-                    
-                    <div class="file-input-wrapper">
-                        <input 
-                            type="file" 
-                            name="gpa_file" 
-                            id="gpaFile" 
-                            accept=".csv, .xlsx, .xls"
-                            class="file-input"
-                            required
-                            onchange="updateFileName(this)"
-                        >
-                        <label for="gpaFile" class="file-label">
-                            <i class="bi bi-folder-open"></i>
-                            <span id="fileName">Click to browse or drag file</span>
-                        </label>
-                    </div>
-                    
-                    <button type="submit" class="btn-success-modern btn-primary-modern w-100 mt-3" style="background: linear-gradient(135deg, var(--secondary-color), #059669);">
-                        <i class="bi bi-cloud-arrow-up"></i> Upload & Process
-                    </button>
-                </form>
+        <div class="card-body-modern text-center" style="min-height: 400px; display: flex; flex-direction: column; justify-content: center;">
+            <div style="font-size: 3rem; color: var(--secondary); margin-bottom: 1rem;">
+                <i class="bi bi-file-earmark-arrow-up"></i>
             </div>
             
-            {% if messages %}
-                <div style="margin-top: 1.5rem;">
-                    {% for message in messages %}
-                        <div class="alert-modern alert-{% if message.tags == 'error' %}danger{% else %}success{% endif %}">
-                            <i class="bi bi-{% if message.tags == 'error' %}exclamation-circle-fill{% else %}check-circle-fill{% endif %}"></i>
-                            <div>{{ message }}</div>
-                        </div>
-                    {% endfor %}
+            <h4 class="font-bold" style="color: var(--gray-900); margin-bottom: 0.5rem;">Upload Result Sheet</h4>
+            <p class="text-muted mb-4">Select a .csv or .xlsx file from your computer</p>
+            
+            <form action="{% url 'upload_gpa' %}" method="POST" enctype="multipart/form-data" class="upload-form">
+                {% csrf_token %}
+                
+                <div class="file-input-wrapper">
+                    <input 
+                        type="file" 
+                        name="gpa_file" 
+                        id="gpaFile" 
+                        accept=".csv, .xlsx, .xls"
+                        class="file-input"
+                        required
+                        onchange="updateFileName(this)"
+                    >
+                    <label for="gpaFile" class="file-label">
+                        <i class="bi bi-folder-open"></i>
+                        <span id="fileName">Click to browse or drag file</span>
+                    </label>
                 </div>
-            {% endif %}
+                
+                <button type="submit" class="btn-success-modern w-100" style="padding: 1rem; background: linear-gradient(135deg, var(--secondary), var(--secondary-dark));">
+                    <i class="bi bi-cloud-arrow-up me-2"></i> Upload & Process
+                </button>
+            </form>
         </div>
+        
+        {% if messages %}
+            <div style="margin-top: 1.5rem; padding: 0 1.5rem;">
+                {% for message in messages %}
+                    <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}success{% endif %}">
+                        <i class="bi bi-{% if message.tags == 'error' %}exclamation-circle-fill{% else %}check-circle-fill{% endif %}"></i>
+                        <div>{{ message }}</div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
     </div>
 </div>
 
