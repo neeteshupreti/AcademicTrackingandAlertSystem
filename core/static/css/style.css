@@ -1,86 +1,52 @@
-/* ============================================================================
-   ATAS - Academic Tracking & Alert System
-   Modern, Clean & Consistent UI Design
-   ============================================================================ */
+/* ATAS - Minimal & Clean CSS */
 
-/* --- 1. ROOT VARIABLES & DESIGN SYSTEM --- */
 :root {
     /* Colors */
-    --primary-color: #3b82f6;
+    --primary: #3b82f6;
     --primary-dark: #1e40af;
-    --primary-light: #dbeafe;
-    --secondary-color: #10b981;
-    --danger-color: #ef4444;
-    --warning-color: #f59e0b;
-    --info-color: #06b6d4;
+    --secondary: #10b981;
+    --danger: #ef4444;
+    --warning: #f59e0b;
     
     /* Grays */
-    --gray-50: #f9fafb;
     --gray-100: #f3f4f6;
     --gray-200: #e5e7eb;
-    --gray-300: #d1d5db;
-    --gray-400: #9ca3af;
     --gray-500: #6b7280;
-    --gray-600: #4b5563;
     --gray-700: #374151;
-    --gray-800: #1f2937;
-    --gray-900: #111827;
     
     /* Layout */
     --header-height: 70px;
-    --sidebar-width: 280px;
-    --border-radius: 12px;
-    --spacing-unit: 8px;
-    
-    /* Typography */
-    --font-family: 'Inter', 'Segoe UI', Roboto, sans-serif;
-    --font-size-base: 15px;
-    --line-height-base: 1.6;
-    
-    /* Shadows */
-    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-    --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
-    
-    /* Transitions */
-    --transition: all 0.3s ease;
 }
 
-/* --- 2. GLOBAL STYLES --- */
+/* Global */
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
 }
 
-html, body {
-    width: 100%;
-    height: 100%;
-    font-family: var(--font-family);
-    font-size: var(--font-size-base);
-    line-height: var(--line-height-base);
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-size: 15px;
+    line-height: 1.6;
     color: var(--gray-700);
-    background-color: var(--gray-50);
-    overflow-x: hidden;
+    background-color: var(--gray-100);
 }
 
 a {
-    color: var(--primary-color);
+    color: var(--primary);
     text-decoration: none;
-    transition: var(--transition);
 }
 
 a:hover {
     color: var(--primary-dark);
 }
 
-/* --- 3. HEADER/NAVBAR STYLES --- */
+/* Header/Navbar */
 .navbar-main {
-    background: #fff;
+    background: white;
     border-bottom: 1px solid var(--gray-200);
     height: var(--header-height);
-    box-shadow: var(--shadow-sm);
     position: sticky;
     top: 0;
     z-index: 100;
@@ -99,49 +65,28 @@ a:hover {
 .navbar-brand {
     font-size: 1.5rem;
     font-weight: 700;
-    color: var(--primary-color);
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-}
-
-.navbar-brand i {
-    font-size: 1.75rem;
+    color: var(--primary);
 }
 
 .navbar-menu {
     display: flex;
-    align-items: center;
     gap: 0;
     list-style: none;
     flex: 1;
     margin-left: 3rem;
 }
 
-.navbar-menu-item {
-    position: relative;
-}
-
 .navbar-menu-link {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
     padding: 0.75rem 1.25rem;
-    color: var(--gray-600);
-    font-weight: 500;
-    font-size: 0.95rem;
+    color: var(--gray-700);
     border-bottom: 2px solid transparent;
-    transition: var(--transition);
+    font-weight: 500;
 }
 
 .navbar-menu-link:hover,
 .navbar-menu-link.active {
-    color: var(--primary-color);
-    border-bottom-color: var(--primary-color);
-}
-
-.navbar-menu-link i {
-    font-size: 1.1rem;
+    color: var(--primary);
+    border-bottom-color: var(--primary);
 }
 
 .navbar-right {
@@ -151,64 +96,33 @@ a:hover {
     margin-left: auto;
 }
 
-.user-menu {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-}
-
 .user-avatar {
     width: 40px;
     height: 40px;
     border-radius: 50%;
-    background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
-    color: #fff;
+    background: var(--primary);
+    color: white;
     display: flex;
     align-items: center;
     justify-content: center;
     font-weight: 600;
-    font-size: 1rem;
-    cursor: pointer;
-    transition: var(--transition);
-}
-
-.user-avatar:hover {
-    box-shadow: var(--shadow-md);
-    transform: scale(1.05);
 }
 
 .btn-logout {
     padding: 0.5rem 1rem;
-    background-color: var(--danger-color);
-    color: #fff;
+    background-color: var(--danger);
+    color: white;
     border: none;
-    border-radius: var(--border-radius);
+    border-radius: 6px;
     font-size: 0.9rem;
-    font-weight: 500;
     cursor: pointer;
-    transition: var(--transition);
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
 }
 
 .btn-logout:hover {
     background-color: #dc2626;
-    box-shadow: var(--shadow-md);
 }
 
-/* Toggle Menu Button */
-.btn-menu-toggle {
-    display: none;
-    background: none;
-    border: none;
-    font-size: 1.5rem;
-    color: var(--gray-700);
-    cursor: pointer;
-    padding: 0.5rem;
-}
-
-/* --- 4. MAIN LAYOUT --- */
+/* Main Content */
 .main-wrapper {
     display: flex;
     min-height: calc(100vh - var(--header-height));
@@ -223,31 +137,22 @@ a:hover {
     width: 100%;
 }
 
-/* --- 5. CARD STYLES --- */
+/* Cards */
 .card-modern {
-    background: #fff;
+    background: white;
     border: 1px solid var(--gray-200);
-    border-radius: var(--border-radius);
-    box-shadow: var(--shadow-sm);
-    overflow: hidden;
-    transition: var(--transition);
-}
-
-.card-modern:hover {
-    box-shadow: var(--shadow-md);
-    border-color: var(--gray-300);
+    border-radius: 8px;
+    padding: 0;
+    margin-bottom: 1.5rem;
 }
 
 .card-header-modern {
     padding: 1.5rem;
-    background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
-    color: #fff;
-    border-bottom: none;
+    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+    color: white;
 }
 
-.card-header-modern h3,
-.card-header-modern h4,
-.card-header-modern h5 {
+.card-header-modern h3 {
     margin: 0;
     font-weight: 600;
 }
@@ -256,91 +161,53 @@ a:hover {
     padding: 1.5rem;
 }
 
-/* --- 6. BUTTONS --- */
-.btn-primary-modern {
-    background-color: var(--primary-color);
-    color: #fff;
+/* Buttons */
+.btn-primary-modern,
+.btn-secondary-modern,
+.btn-danger-modern,
+.btn-success-modern {
     padding: 0.75rem 1.5rem;
     border: none;
-    border-radius: var(--border-radius);
+    border-radius: 6px;
     font-weight: 500;
     font-size: 0.95rem;
     cursor: pointer;
-    transition: var(--transition);
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
+}
+
+.btn-primary-modern {
+    background-color: var(--primary);
+    color: white;
 }
 
 .btn-primary-modern:hover {
     background-color: var(--primary-dark);
-    box-shadow: var(--shadow-md);
-    transform: translateY(-2px);
 }
 
 .btn-secondary-modern {
     background-color: var(--gray-200);
     color: var(--gray-700);
-    padding: 0.75rem 1.5rem;
-    border: none;
-    border-radius: var(--border-radius);
-    font-weight: 500;
-    font-size: 0.95rem;
-    cursor: pointer;
-    transition: var(--transition);
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
 }
 
 .btn-secondary-modern:hover {
-    background-color: var(--gray-300);
-    box-shadow: var(--shadow-md);
+    background-color: var(--gray-200);
 }
 
 .btn-danger-modern {
-    background-color: var(--danger-color);
-    color: #fff;
-    padding: 0.75rem 1.5rem;
-    border: none;
-    border-radius: var(--border-radius);
-    font-weight: 500;
-    font-size: 0.95rem;
-    cursor: pointer;
-    transition: var(--transition);
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
+    background-color: var(--danger);
+    color: white;
 }
 
 .btn-danger-modern:hover {
     background-color: #dc2626;
-    box-shadow: var(--shadow-md);
 }
 
 .btn-success-modern {
-    background-color: var(--secondary-color);
-    color: #fff;
-    padding: 0.75rem 1.5rem;
-    border: none;
-    border-radius: var(--border-radius);
-    font-weight: 500;
-    font-size: 0.95rem;
-    cursor: pointer;
-    transition: var(--transition);
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
+    background-color: var(--secondary);
+    color: white;
 }
 
 .btn-success-modern:hover {
     background-color: #059669;
-    box-shadow: var(--shadow-md);
-}
-
-.btn-sm-modern {
-    padding: 0.5rem 1rem;
-    font-size: 0.85rem;
 }
 
 .btn-group-modern {
@@ -349,50 +216,39 @@ a:hover {
     flex-wrap: wrap;
 }
 
-/* --- 7. TABLES --- */
+/* Tables */
 .table-modern {
     width: 100%;
     border-collapse: collapse;
+    margin-top: 1rem;
 }
 
 .table-modern thead {
-    background-color: var(--gray-50);
+    background-color: var(--gray-100);
     border-bottom: 2px solid var(--gray-200);
 }
 
 .table-modern th {
-    padding: 1rem 1.5rem;
+    padding: 1rem;
     text-align: left;
     font-weight: 600;
     color: var(--gray-700);
     font-size: 0.9rem;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
 }
 
 .table-modern td {
-    padding: 1rem 1.5rem;
-    border-bottom: 1px solid var(--gray-100);
+    padding: 1rem;
+    border-bottom: 1px solid var(--gray-200);
     color: var(--gray-700);
 }
 
-.table-modern tbody tr {
-    transition: var(--transition);
-}
-
 .table-modern tbody tr:hover {
-    background-color: var(--gray-50);
+    background-color: var(--gray-100);
 }
 
-.table-modern tbody tr:last-child td {
-    border-bottom: none;
-}
-
-/* --- 8. BADGES & LABELS --- */
+/* Badges */
 .badge-modern {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
+    display: inline-block;
     padding: 0.5rem 1rem;
     border-radius: 20px;
     font-size: 0.85rem;
@@ -400,8 +256,8 @@ a:hover {
 }
 
 .badge-primary {
-    background-color: var(--primary-light);
-    color: var(--primary-dark);
+    background-color: #dbeafe;
+    color: #1e40af;
 }
 
 .badge-success {
@@ -419,12 +275,7 @@ a:hover {
     color: #92400e;
 }
 
-.badge-info {
-    background-color: #cffafe;
-    color: #0c4a6e;
-}
-
-/* --- 9. FORMS --- */
+/* Forms */
 .form-group-modern {
     margin-bottom: 1.5rem;
 }
@@ -434,115 +285,67 @@ a:hover {
     margin-bottom: 0.5rem;
     font-weight: 500;
     color: var(--gray-700);
-    font-size: 0.95rem;
 }
 
 .form-control-modern {
     width: 100%;
     padding: 0.75rem 1rem;
-    border: 1px solid var(--gray-300);
-    border-radius: var(--border-radius);
-    font-family: var(--font-family);
-    font-size: var(--font-size-base);
+    border: 1px solid var(--gray-200);
+    border-radius: 6px;
+    font-size: 15px;
     color: var(--gray-700);
-    transition: var(--transition);
 }
 
 .form-control-modern:focus {
     outline: none;
-    border-color: var(--primary-color);
+    border-color: var(--primary);
     box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
 
-.form-control-modern::placeholder {
-    color: var(--gray-400);
-}
-
-/* --- 10. ALERTS --- */
-.alert-modern {
+/* Alerts */
+.alert {
     padding: 1rem 1.5rem;
-    border-radius: var(--border-radius);
-    border: 1px solid;
-    display: flex;
-    align-items: flex-start;
-    gap: 1rem;
+    border-radius: 6px;
     margin-bottom: 1.5rem;
-    animation: slideIn 0.3s ease;
+    border-left: 4px solid;
 }
 
 .alert-success {
     background-color: #d1fae5;
-    border-color: #6ee7b7;
+    border-left-color: var(--secondary);
     color: #047857;
 }
 
 .alert-danger {
     background-color: #fee2e2;
-    border-color: #fca5a5;
+    border-left-color: var(--danger);
     color: #991b1b;
 }
 
 .alert-warning {
     background-color: #fef3c7;
-    border-color: #fcd34d;
+    border-left-color: var(--warning);
     color: #92400e;
 }
 
 .alert-info {
     background-color: #cffafe;
-    border-color: #a5f3fc;
+    border-left-color: #06b6d4;
     color: #0c4a6e;
 }
 
-.alert-modern i {
-    font-size: 1.25rem;
-    flex-shrink: 0;
-}
-
-.alert-close {
-    margin-left: auto;
-    background: none;
-    border: none;
-    font-size: 1.5rem;
-    cursor: pointer;
-    opacity: 0.7;
-    transition: var(--transition);
-}
-
-.alert-close:hover {
-    opacity: 1;
-}
-
-@keyframes slideIn {
-    from {
-        opacity: 0;
-        transform: translateY(-10px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-/* --- 11. STAT CARDS --- */
+/* Stat Cards */
 .stat-card {
-    background: #fff;
+    background: white;
     border: 1px solid var(--gray-200);
-    border-radius: var(--border-radius);
+    border-radius: 8px;
     padding: 1.5rem;
     text-align: center;
-    box-shadow: var(--shadow-sm);
-    transition: var(--transition);
-}
-
-.stat-card:hover {
-    transform: translateY(-4px);
-    box-shadow: var(--shadow-md);
-    border-color: var(--primary-color);
+    margin-bottom: 1.5rem;
 }
 
 .stat-card-icon {
-    font-size: 2.5rem;
+    font-size: 2rem;
     margin-bottom: 1rem;
 }
 
@@ -550,39 +353,19 @@ a:hover {
     font-size: 0.9rem;
     color: var(--gray-500);
     font-weight: 500;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
     margin-bottom: 0.5rem;
 }
 
 .stat-card-value {
     font-size: 2rem;
     font-weight: 700;
-    color: var(--gray-900);
+    color: var(--gray-700);
 }
 
-.stat-card-icon.primary { color: var(--primary-color); }
-.stat-card-icon.success { color: var(--secondary-color); }
-.stat-card-icon.danger { color: var(--danger-color); }
-.stat-card-icon.warning { color: var(--warning-color); }
-
-/* --- 12. RESPONSIVE DESIGN --- */
+/* Responsive */
 @media (max-width: 768px) {
-    :root {
-        --sidebar-width: 0;
-    }
-    
     .navbar-menu {
         display: none;
-    }
-    
-    .btn-menu-toggle {
-        display: block;
-        margin-right: 1rem;
-    }
-    
-    .navbar-brand {
-        font-size: 1.25rem;
     }
     
     .main-content {
@@ -591,13 +374,6 @@ a:hover {
     
     .btn-group-modern {
         flex-direction: column;
-    }
-    
-    .btn-group-modern button,
-    .btn-group-modern a {
-        width: 100%;
-        text-align: center;
-        justify-content: center;
     }
     
     .table-modern {
@@ -610,51 +386,15 @@ a:hover {
     }
 }
 
-@media (max-width: 480px) {
-    .navbar-right {
-        gap: 0.5rem;
-    }
-    
-    .user-info {
-        display: none;
-    }
-    
-    .stat-card-value {
-        font-size: 1.5rem;
-    }
-    
-    .main-content {
-        padding: 1rem;
-    }
-}
-
-/* --- 13. UTILITY CLASSES --- */
+/* Utility Classes */
 .text-center { text-align: center; }
-.text-right { text-align: right; }
-.mb-1 { margin-bottom: 0.5rem; }
 .mb-2 { margin-bottom: 1rem; }
 .mb-3 { margin-bottom: 1.5rem; }
-.mb-4 { margin-bottom: 2rem; }
-.mt-1 { margin-top: 0.5rem; }
 .mt-2 { margin-top: 1rem; }
 .mt-3 { margin-top: 1.5rem; }
-.mt-4 { margin-top: 2rem; }
-.p-1 { padding: 0.5rem; }
 .p-2 { padding: 1rem; }
 .p-3 { padding: 1.5rem; }
-.p-4 { padding: 2rem; }
-.gap-1 { gap: 0.5rem; }
-.gap-2 { gap: 1rem; }
-.gap-3 { gap: 1.5rem; }
-.gap-4 { gap: 2rem; }
-.w-100 { width: 100%; }
 .d-flex { display: flex; }
-.align-center { align-items: center; }
-.justify-between { justify-content: space-between; }
-.flex-wrap { flex-wrap: wrap; }
-.opacity-75 { opacity: 0.75; }
-.text-muted { color: var(--gray-500); }
-.text-error { color: var(--danger-color); }
-.text-success { color: var(--secondary-color); }
+.w-100 { width: 100%; }
 .font-bold { font-weight: 700; }
-.font-semibold { font-weight: 600; }
+.text-muted { color: var(--gray-500); }
