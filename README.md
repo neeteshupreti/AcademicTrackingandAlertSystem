@@ -1,10 +1,9 @@
 # ATAS: Academic Tracking and Alert System 🎓
 
-**ATAS** is a Django-based web application designed to automate the detection and tracking of students requiring compartment (re-take) exams. By leveraging **Optical Character Recognition (OCR)** and **Pandas Data Processing**, ATAS eliminates manual grade entry and identifies at-risk students instantly.
+**ATAS** is a Django-based web application designed to automate the detection and tracking of students requiring compartment (re-take) exams (currently for Kathmandu Universtiy transcripts only). By leveraging **Optical Character Recognition (OCR)** and **Pandas Data Processing**, ATAS eliminates manual grade entry and identifies at-risk students instantly.
 
 ## 🚀 Key Features
 
-- **🔍 Universal Smart Scanner (OCR):** Uses Tesseract and OpenCV to extract data from any transcript format (e.g., Kathmandu University, Aspire College)
 - **⚠️ Automated Failure Detection:** Instantly flags students with a GPA < 2.0 or specific failing grades (F, D, or incomplete 'X')
 - **📤 Bulk CSV/Excel Upload:** Integrated Pandas engine for processing entire semester result sheets
 - **🗂️ Relational Academic Tracking:** Manages Faculty, Courses, Students, and Exam Deadlines with database relationships
