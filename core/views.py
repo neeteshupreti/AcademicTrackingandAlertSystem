@@ -8,6 +8,11 @@ from django.contrib.auth.decorators import login_required
 def home(request):
     now = timezone.now()
     
+    # Get flagged but not yet cleared records (unresolved issues)
+    recent_flags = CompartExamRecord.objects.filter(
+        is_cleared=False
+    ).select_related('student').order_by('-date_created')[:5]
+    
     context = {
         'total_students': Student.objects.count(),
         'compartment_students': CompartExamRecord.objects.filter(is_cleared=False).count(),
@@ -18,6 +23,6 @@ def home(request):
             form_deadline__gte=now
         ).order_by('form_deadline')[:5],
         
-        'recent_flags': CompartExamRecord.objects.select_related('student').order_by('-id')[:5]
+        'recent_flags': recent_flags
     }
     return render(request, 'core/home.html', context)

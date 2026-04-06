@@ -48,7 +48,7 @@
             <i class="bi bi-info-circle-fill"></i>
             <div>
                 <strong>Required Columns</strong>
-                <p style="margin: 0.5rem 0 0 0; font-size: 0.9rem;">Your CSV must contain: Name, GPA, and Failed Subjects columns.</p>
+                <p style="margin: 0.5rem 0 0 0; font-size: 0.9rem;">Your CSV must contain: Name, GPA, Year, Semester, and Failed Subjects columns.</p>
             </div>
         </div>
     </div>
@@ -123,6 +123,7 @@
                     <tr>
                         <th>Student Name</th>
                         <th>Registration No</th>
+                        <th>Year</th>
                         <th>Semester</th>
                         <th>GPA</th>
                         <th>Failed Subjects</th>
@@ -132,6 +133,7 @@
                     <tr>
                         <td><strong>UPRETI NITESH</strong></td>
                         <td>REG001</td>
+                        <td>2</td>
                         <td>3</td>
                         <td>2.5</td>
                         <td>MATH 101, COMP 102</td>
@@ -139,6 +141,7 @@
                     <tr>
                         <td><strong>JOHN SMITH</strong></td>
                         <td>REG002</td>
+                        <td>2</td>
                         <td>3</td>
                         <td>3.2</td>
                         <td>PHYS 201</td>
@@ -147,10 +150,10 @@
             </table>
         </div>
         
-        <div class="alert-modern alert-warning mt-3">
-            <i class="bi bi-exclamation-triangle-fill"></i>
+        <div class="alert-modern alert-info mt-3">
+            <i class="bi bi-info-circle-fill"></i>
             <div>
-                <strong>Tip:</strong> Make sure your CSV headers match exactly (case-insensitive). The system will map columns automatically.
+                <strong>Semester Mapping:</strong> Year I (Sem 1-2), Year II (Sem 3-4), Year III (Sem 5-6), Year IV (Sem 7-8). Provide numeric values: 1-8 for Semester, 1-4 for Year.
             </div>
         </div>
     </div>

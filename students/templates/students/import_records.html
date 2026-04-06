@@ -125,9 +125,9 @@
         </div>
         
         <!-- Results Card -->
-        <div id="results-card" class="card-modern d-none" style="border-left: 5px solid var(--secondary);">
+        <div id="results-card" class="card-modern d-none" style="border-left: 5px solid var(--secondary); animation: slideIn 0.4s ease-out;">
             <div class="card-header-modern" style="background: linear-gradient(135deg, var(--secondary), var(--secondary-dark));">
-                <h4 style="margin: 0; font-size: 1.1rem;">
+                <h4 style="margin: 0; font-size: 1.1rem; color: white;">
                     <i class="bi bi-check-circle-fill me-2"></i>Verification Dashboard
                 </h4>
             </div>
@@ -149,6 +149,29 @@
                     </div>
                 </div>
                 
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem;">
+                    <div class="form-group-modern">
+                        <label class="form-label-modern">
+                            <i class="bi bi-calendar-week me-1" style="color: var(--secondary);"></i>Year
+                        </label>
+                        <input type="text" id="res-year" class="form-control-modern" placeholder="Extracted year" readonly>
+                    </div>
+                    
+                    <div class="form-group-modern">
+                        <label class="form-label-modern">
+                            <i class="bi bi-calendar-event me-1" style="color: var(--secondary);"></i>Semester
+                        </label>
+                        <input type="text" id="res-semester" class="form-control-modern" placeholder="Extracted semester" readonly>
+                    </div>
+                </div>
+                
+                <div class="form-group-modern">
+                    <label class="form-label-modern">
+                        <i class="bi bi-hash me-1" style="color: var(--primary);"></i>Registration Number
+                    </label>
+                    <input type="text" id="res-regnum" class="form-control-modern" placeholder="Extracted registration number (optional)">
+                </div>
+                
                 <div class="form-group-modern">
                     <label class="form-label-modern">
                         <i class="bi bi-exclamation-triangle-fill me-1" style="color: var(--danger);"></i>Failed Subjects (Backlogs)
@@ -156,11 +179,42 @@
                     <input type="text" id="res-failed" class="form-control-modern" placeholder="Failed subjects" style="color: var(--danger); font-weight: 600;">
                 </div>
                 
-                <button onclick="commitToSystem()" class="btn-success-modern w-100" style="padding: 1rem; margin-top: 1rem; font-weight: 600;">
-                    <i class="bi bi-cloud-check me-2"></i>Confirm & Record Data
-                </button>
+                <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+                    <button type="button" onclick="commitToSystem()" class="btn-success-modern flex-1" style="padding: 1.2rem; font-weight: 700; font-size: 1.05rem; border: none; cursor: pointer; border-radius: 10px; background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3); flex: 1;">
+                        <i class="bi bi-cloud-check me-2"></i>✓ Confirm & Save
+                    </button>
+                    <button type="button" onclick="document.getElementById('results-card').classList.add('d-none')" class="btn-secondary-modern" style="padding: 1rem 1.5rem; font-weight: 600; border: 1px solid var(--gray-300); cursor: pointer; border-radius: 10px; background: transparent; color: var(--gray-700); transition: all 0.3s ease;">
+                        <i class="bi bi-x me-1"></i>Cancel
+                    </button>
+                </div>
             </div>
         </div>
+
+        <style>
+            @keyframes slideIn {
+                from {
+                    opacity: 0;
+                    transform: translateY(-20px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+            
+            .flex-1 {
+                flex: 1;
+            }
+
+            .btn-success-modern:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4) !important;
+            }
+            
+            .btn-success-modern:active {
+                transform: translateY(0);
+            }
+        </style>
     </div>
 </div>
 
@@ -344,6 +398,20 @@
         processImage(canvas.toDataURL('image/jpeg', 0.9));
     }
 
+    function getYearSemesterDisplay(year, semester) {
+        // Convert numeric year to Roman numeral
+        const yearRoman = ['', 'I', 'II', 'III', 'IV'][year] || year;
+        
+        // Calculate semester within year (1-2)
+        const semInYear = ((semester - 1) % 2) + 1;
+        
+        return {
+            yearDisplay: `Year ${yearRoman}`,
+            semesterDisplay: `Semester ${semInYear}`,
+            fullDisplay: `Year ${yearRoman} Semester ${semInYear}`
+        };
+    }
+
     async function processImage(base64Data) {
         document.getElementById('processing').classList.remove('d-none');
         document.getElementById('results-card').classList.add('d-none');
@@ -363,6 +431,20 @@
                 document.getElementById('res-name').value = data.extracted_data.name || '';
                 document.getElementById('res-gpa').value = data.extracted_data.gpa || '';
                 document.getElementById('res-failed').value = data.extracted_data.failed_subjects || '';
+                document.getElementById('res-regnum').value = data.extracted_data.registration_no || '';
+                
+                // Display year and semester with proper formatting
+                const year = data.extracted_data.year || 1;
+                const semester = data.extracted_data.semester || 1;
+                const display = getYearSemesterDisplay(year, semester);
+                
+                document.getElementById('res-year').value = display.yearDisplay;
+                document.getElementById('res-semester').value = display.semesterDisplay;
+                
+                // Store year and semester for later use
+                window.extractedYear = year;
+                window.extractedSemester = semester;
+                
                 isFailing = data.is_failing || false;
                 showNotification('Data extracted successfully!', 'success');
             } else {
@@ -375,10 +457,23 @@
     }
 
     async function commitToSystem() {
+        console.log('commitToSystem called');
+        const name = document.getElementById('res-name').value;
+        const gpa = document.getElementById('res-gpa').value;
+        const failed_subjects = document.getElementById('res-failed').value;
+        const year = window.extractedYear || 1;
+        const semester = window.extractedSemester || 1;
+        const registration_no = document.getElementById('res-regnum')?.value || null;
+        
+        console.log('Form data:', { name, gpa, failed_subjects, year, semester, registration_no, isFailing });
+        
         const payload = {
-            name: document.getElementById('res-name').value,
-            gpa: document.getElementById('res-gpa').value,
-            failed_subjects: document.getElementById('res-failed').value,
+            name: name,
+            registration_no: registration_no,
+            gpa: gpa,
+            failed_subjects: failed_subjects,
+            year: year,
+            semester: semester,
             is_failing: isFailing
         };
         
@@ -388,12 +483,15 @@
         }
         
         try {
+            console.log('Sending payload:', payload);
             const response = await fetch('/students/save-verified/', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json', 'X-CSRFToken': '{{ csrf_token }}'},
                 body: JSON.stringify(payload)
             });
+            console.log('Response status:', response.status);
             const result = await response.json();
+            console.log('Result:', result);
             
             if(result.status === 'success') {
                 showNotification("Record for " + payload.name + " saved successfully!", 'success', 3000);
@@ -404,8 +502,70 @@
                 showNotification(result.error || 'Failed to save record', 'error');
             }
         } catch (err) {
+            console.error('Error:', err);
             showNotification('Error saving record: ' + err.message, 'error');
         }
+    }
+
+    function showNotification(message, type = 'info', duration = 5000) {
+        const notification = document.createElement('div');
+        const icons = {
+            'success': 'bi-check-circle-fill',
+            'error': 'bi-exclamation-circle-fill',
+            'warning': 'bi-exclamation-triangle-fill',
+            'info': 'bi-info-circle-fill'
+        };
+        const colors = {
+            'success': 'background: #d1fae5; border: 1px solid #a7f3d0; color: #065f46;',
+            'error': 'background: #fee2e2; border: 1px solid #fca5a5; color: #991b1b;',
+            'warning': 'background: #fef3c7; border: 1px solid #fcd34d; color: #92400e;',
+            'info': 'background: #dbeafe; border: 1px solid #bfdbfe; color: #1e40af;'
+        };
+
+        notification.innerHTML = `
+            <div style="${colors[type] || colors['info']} padding: 1rem 1.5rem; border-radius: 8px; display: flex; align-items: center; gap: 1rem; box-shadow: 0 2px 8px rgba(0,0,0,0.1); animation: slideInDown 0.3s ease-out;">
+                <i class="bi ${icons[type] || icons['info']}" style="font-size: 1.3rem; flex-shrink: 0;"></i>
+                <span style="font-weight: 500; flex: 1;">${message}</span>
+                <button onclick="this.parentElement.parentElement.remove()" style="background: none; border: none; cursor: pointer; opacity: 0.7; transition: opacity 0.2s;">
+                    <i class="bi bi-x" style="font-size: 1.2rem;"></i>
+                </button>
+            </div>
+        `;
+        
+        notification.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            max-width: 500px;
+            z-index: 10000;
+            animation: slideInDown 0.3s ease-out;
+        `;
+
+        document.body.appendChild(notification);
+        
+        if (duration > 0) {
+            setTimeout(() => {
+                notification.style.animation = 'slideOutUp 0.3s ease-out';
+                setTimeout(() => notification.remove(), 300);
+            }, duration);
+        }
+    }
+
+    // Add animations to stylesheet if not already present
+    if (!document.getElementById('notification-styles')) {
+        const style = document.createElement('style');
+        style.id = 'notification-styles';
+        style.innerHTML = `
+            @keyframes slideInDown {
+                from { opacity: 0; transform: translateY(-20px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
+            @keyframes slideOutUp {
+                from { opacity: 1; transform: translateY(0); }
+                to { opacity: 0; transform: translateY(-20px); }
+            }
+        `;
+        document.head.appendChild(style);
     }
 </script>
 

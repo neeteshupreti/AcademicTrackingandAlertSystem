@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body { font-family: Arial, sans-serif; color: #333; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background-color: #ff9800; color: white; padding: 20px; border-radius: 5px 5px 0 0; }
+        .content { background-color: #f9f9f9; padding: 20px; border: 1px solid #ddd; }
+        .subject-item { background-color: white; padding: 15px; margin: 10px 0; border-left: 4px solid #ff9800; }
+        .subject-code { font-weight: bold; color: #ff9800; }
+        .deadline { font-size: 18px; font-weight: bold; color: #ff9800; }
+        .footer { background-color: #f0f0f0; padding: 15px; border-radius: 0 0 5px 5px; text-align: center; font-size: 12px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h2>Alert: Compartment Registration Deadline</h2>
+        </div>
+
+        <div class="content">
+            <p>Dear {{ student_name }},</p>
+
+            <p>This is a reminder that the registration deadline for compartment exams is approaching for the following subjects:</p>
+
+            {% for subject in subjects %}
+                <div class="subject-item">
+                    <p><span class="subject-code">{{ subject.code }}</span></p>
+                    <p>
+                        <strong>Subject:</strong> {{ subject.name }}<br>
+                        <strong>Registration Deadline:</strong> <span class="deadline">{{ subject.deadline|date:"Y-m-d H:i" }}</span>
+                    </p>
+                </div>
+            {% endfor %}
+
+            <div style="background-color: #fff3cd; padding: 15px; border-left: 4px solid #ff9800; margin-top: 20px;">
+                <strong>⚠️ Important:</strong> Please ensure that you register before the deadline to be eligible for the compartment exam.
+            </div>
+
+            {% if custom_message %}
+                <div style="background-color: #e7f3ff; padding: 15px; border-left: 4px solid #2196F3; margin-top: 20px;">
+                    <strong>Additional Information:</strong>
+                    <p>{{ custom_message }}</p>
+                </div>
+            {% endif %}
+
+            <p style="margin-top: 20px; color: #666;">
+                For registration and more details, please log into the ATAS portal or contact the Academic Office.
+            </p>
+        </div>
+
+        <div class="footer">
+            <p>ATAS - Academic Tracking and Alert System</p>
+            <p>Kathmandu University</p>
+        </div>
+    </div>
+</body>
+</html>

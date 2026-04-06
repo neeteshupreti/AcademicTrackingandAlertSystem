@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            color: #333;
+            line-height: 1.6;
+        }
+        .email-container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f8fafc;
+        }
+        .header {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 8px 8px 0 0;
+            text-align: center;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+        .content {
+            background: white;
+            padding: 30px;
+            border-radius: 0 0 8px 8px;
+            border: 1px solid #e2e8f0;
+        }
+        .deadline-box {
+            background: #fef3c7;
+            border-left: 4px solid #f59e0b;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        .deadline-box .date {
+            font-size: 24px;
+            font-weight: 700;
+            color: #92400e;
+            margin: 10px 0;
+        }
+        .info-section {
+            background: #f1f5f9;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 15px 0;
+        }
+        .info-section label {
+            font-weight: 600;
+            color: #475569;
+            display: block;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 5px;
+        }
+        .info-section .value {
+            color: #1e293b;
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+        .footer {
+            text-align: center;
+            color: #64748b;
+            font-size: 12px;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #e2e8f0;
+        }
+        .footer a {
+            color: #3b82f6;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <div class="header">
+            <h1>⏰ Compartment Exam Reminder</h1>
+            <p style="margin: 10px 0 0 0; opacity: 0.9;">Don't miss your scheduled exam</p>
+        </div>
+
+        <div class="content">
+            <p>Dear <strong>{{ student_name }}</strong>,</p>
+
+            <p>This is a reminder that you have an upcoming compartment examination scheduled.</p>
+
+            <div class="deadline-box">
+                <p style="margin: 0; color: #92400e; font-size: 14px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Exam Date & Time</p>
+                <div class="date">{{ deadline_date }}</div>
+                <p style="margin: 10px 0 0 0; color: #92400e; font-size: 14px;"><strong>Time:</strong> {{ deadline_time }}</p>
+            </div>
+
+            <div class="info-section">
+                <label>Subject Name</label>
+                <div class="value">{{ subject_name }}</div>
+
+                <label>Subject Code</label>
+                <div class="value">{{ subject_code }}</div>
+            </div>
+
+            <h3 style="color: #1e293b; margin-top: 25px;">Important Reminders:</h3>
+            <ul style="color: #475569; line-height: 1.8;">
+                <li>Arrive <strong>30 minutes before</strong> the scheduled exam time</li>
+                <li>Bring your valid <strong>ID card and admit card</strong></li>
+                <li>Study the exam <strong>syllabus thoroughly</strong></li>
+                <li>Check the examination center <strong>location and room number</strong></li>
+                <li>Contact your instructor if you have any <strong>last-minute doubts</strong></li>
+            </ul>
+
+            <div style="background: #dbeafe; padding: 15px; border-radius: 4px; margin: 20px 0; border-left: 4px solid #3b82f6;">
+                <strong style="color: #1e40af;">❓ Questions?</strong>
+                <p style="margin: 10px 0 0 0; color: #1e40af;">Contact the Academic Affairs Office at <a href="mailto:{{ support_email }}" style="color: #1e40af; text-decoration: underline;">{{ support_email }}</a></p>
+            </div>
+
+            <p style="margin-top: 25px; color: #64748b; font-size: 14px;">Good luck with your exam!<br><strong>Academic Tracking & Alert System</strong></p>
+        </div>
+
+        <div class="footer">
+            <p>This is an automated reminder. Please do not reply to this email.</p>
+            <p>For support, contact: <a href="mailto:{{ support_email }}">{{ support_email }}</a></p>
+        </div>
+    </div>
+</body>
+</html>

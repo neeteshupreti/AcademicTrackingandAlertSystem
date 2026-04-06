@@ -1,28 +1,124 @@
 {% extends 'core/admin_base.html' %}
 
-{% block title %}Academic Alert System - ATAS{% endblock %}
+{% block title %}Academic Tracking - ATAS{% endblock %}
 
 {% block content %}
 <!-- Page Header -->
 <div class="d-flex justify-between align-center mb-4">
     <div>
         <h1 class="font-bold" style="font-size: 2rem; color: var(--gray-900); margin: 0;">
-            <i class="bi bi-exclamation-triangle-fill me-2"></i>Academic Alert System
+            <i class="bi bi-clipboard-check me-2"></i>Academic Tracking
         </h1>
-        <p class="text-muted mt-1" style="margin-bottom: 0;">Tracking students with backlogs or GPA issues in the current cycle</p>
+        <p class="text-muted mt-1" style="margin-bottom: 0;">Track students with active compartment cases and alert status</p>
     </div>
     <div>
         <a href="{% url 'import_records' %}" class="btn-primary-modern">
-            <i class="bi bi-plus-circle"></i> New Scan
+            <i class="bi bi-plus-circle"></i> Import Records
         </a>
     </div>
+</div>
+
+<!-- Search and Filter Section -->
+<div class="card-modern" style="margin-bottom: 1.5rem;">
+    <div class="card-body-modern">
+        <form method="get" id="filterForm" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; align-items: flex-end;">
+            
+            <!-- Search Bar -->
+            <div style="grid-column: 1 / -1;">
+                <label style="display: block; font-weight: 600; margin-bottom: 0.5rem; color: var(--gray-700);">
+                    <i class="bi bi-search"></i> Search Students
+                </label>
+                <input 
+                    type="text" 
+                    name="search" 
+                    placeholder="Search by name, registration number, email, or subject code..."
+                    value="{{ search_query }}"
+                    style="width: 100%; padding: 0.75rem 1rem; border: 1px solid var(--gray-300); border-radius: var(--border-radius); font-size: 0.95rem;"
+                />
+            </div>
+            
+            <!-- Year Filter -->
+            <div>
+                <label style="display: block; font-weight: 600; margin-bottom: 0.5rem; color: var(--gray-700);">Year</label>
+                <select name="year" style="width: 100%; padding: 0.75rem; border: 1px solid var(--gray-300); border-radius: var(--border-radius);">
+                    <option value="">All Years</option>
+                    {% for year in all_years %}
+                    <option value="{{ year }}" {% if year|stringformat:"s" == selected_year %}selected{% endif %}>
+                        Year {{ year }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <!-- Semester Filter -->
+            <div>
+                <label style="display: block; font-weight: 600; margin-bottom: 0.5rem; color: var(--gray-700);">Semester</label>
+                <select name="semester" style="width: 100%; padding: 0.75rem; border: 1px solid var(--gray-300); border-radius: var(--border-radius);">
+                    <option value="">All Semesters</option>
+                    {% for sem in all_semesters %}
+                    <option value="{{ sem }}" {% if sem|stringformat:"s" == selected_semester %}selected{% endif %}>
+                        Semester {{ sem }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <!-- Status Filter -->
+            <div>
+                <label style="display: block; font-weight: 600; margin-bottom: 0.5rem; color: var(--gray-700);">Alert Status</label>
+                <select name="status" style="width: 100%; padding: 0.75rem; border: 1px solid var(--gray-300); border-radius: var(--border-radius);">
+                    <option value="">All Statuses</option>
+                    <option value="alerted_failing" {% if selected_status == 'alerted_failing' %}selected{% endif %}>
+                        Alerted for Failing
+                    </option>
+                    <option value="alerted_registration" {% if selected_status == 'alerted_registration' %}selected{% endif %}>
+                        Alerted for Registration
+                    </option>
+                    <option value="alerted_exam" {% if selected_status == 'alerted_exam' %}selected{% endif %}>
+                        Alerted for Exam Date
+                    </option>
+                    <option value="pending_exam" {% if selected_status == 'pending_exam' %}selected{% endif %}>
+                        Exam Pending
+                    </option>
+                    <option value="exam_passed" {% if selected_status == 'exam_passed' %}selected{% endif %}>
+                        Exam Appeared
+                    </option>
+                </select>
+            </div>
+            
+            <!-- Action Buttons -->
+            <div style="display: flex; gap: 0.75rem;">
+                <button type="submit" class="btn-primary-modern" style="flex: 1; padding: 0.75rem;">
+                    <i class="bi bi-funnel"></i> Apply Filters
+                </button>
+                <a href="{% url 'compartment_students' %}" class="btn-secondary-modern" style="flex: 1; padding: 0.75rem; text-align: center;">
+                    <i class="bi bi-arrow-clockwise"></i> Reset
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Results Info -->
+<div style="margin-bottom: 1rem; display: flex; justify-content: space-between; align-items: center;">
+    <p style="margin: 0; color: var(--gray-600);">
+        <strong>{{ records.count }}</strong> 
+        {% if search_query or selected_semester or selected_year or selected_status %}
+            matching record{{ records.count|pluralize }} found
+        {% else %}
+            active record{{ records.count|pluralize }}
+        {% endif %}
+    </p>
+    {% if search_query or selected_semester or selected_year or selected_status %}
+    <a href="{% url 'compartment_students' %}" style="color: var(--primary); font-weight: 500;">Clear all filters</a>
+    {% endif %}
 </div>
 
 <!-- Alerts Table -->
 <div class="card-modern">
     <div class="card-header-modern">
         <h3 style="margin: 0; font-size: 1.25rem;">
-            <i class="bi bi-list-check me-2"></i>Active Alerts
+            <i class="bi bi-table me-2"></i>Compartment Records
             <span class="badge-modern badge-danger" style="margin-left: 1rem;">{{ records.count }} Records</span>
         </h3>
     </div>
@@ -32,16 +128,19 @@
             <table class="table-modern" style="width: 100%; margin-bottom: 0;">
                 <thead>
                     <tr>
+                        <th style="width: 30px;">#</th>
                         <th>Student Identity</th>
                         <th>Reg. Number</th>
-                        <th>Semester</th>
-                        <th>Issue Details</th>
-                        <th style="text-align: center; width: 150px;">Status</th>
+                        <th>Year/Sem</th>
+                        <th>Subject</th>
+                        <th>Alert Status</th>
+                        <th style="text-align: center; width: 80px;">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for record in records %}
                     <tr>
+                        <td>{{ forloop.counter }}</td>
                         <td>
                             <div>
                                 <strong style="color: var(--gray-900);">{{ record.student.name }}</strong>
@@ -55,32 +154,57 @@
                             </code>
                         </td>
                         <td>
-                            <span class="badge-modern badge-primary">Semester {{ record.student.semester }}</span>
+                            <span class="badge-modern badge-info" style="background: var(--gray-200); color: var(--gray-700);">
+                                Y{{ record.year }}S{{ record.semester }}
+                            </span>
                         </td>
                         <td>
-                            <div style="color: var(--danger-color); font-weight: 600;">
-                                <i class="bi bi-file-earmark-text-fill me-1"></i>{{ record.subject_name }}
-                            </div>
+                            <strong style="color: var(--danger-color);">{{ record.subject_code }}</strong>
+                            <br>
+                            <small style="color: var(--gray-500);">{{ record.subject_name|default:"(No name)" }}</small>
                         </td>
-                        <td style="text-align: center;">
-                            {% if record.is_cleared %}
-                                <span class="badge-modern badge-success">
-                                    <i class="bi bi-check-circle"></i> Cleared
+                        <td>
+                            {% if record.exam_date and record.exam_date < now %}
+                                {% if record.is_cleared %}
+                                    <span class="badge-modern badge-success">
+                                        <i class="bi bi-check-circle-fill"></i> Exam Cleared
+                                    </span>
+                                {% else %}
+                                    <span class="badge-modern" style="background: var(--warning); color: white;">
+                                        <i class="bi bi-exclamation-circle-fill"></i> Exam Appeared
+                                    </span>
+                                {% endif %}
+                            {% elif record.exam_date_notified %}
+                                <span class="badge-modern badge-warning">
+                                    <i class="bi bi-megaphone-fill"></i> Alerted for Exam Date
+                                </span>
+                            {% elif record.registration_deadline_notified %}
+                                <span class="badge-modern badge-info" style="background: #0dcaf0; color: white;">
+                                    <i class="bi bi-bell-fill"></i> Alerted for Registration
                                 </span>
                             {% else %}
-                                <span class="badge-modern badge-warning">
-                                    <i class="bi bi-exclamation-circle"></i> Pending
+                                <span class="badge-modern" style="background: var(--gray-400); color: white;">
+                                    <i class="bi bi-exclamation-triangle-fill"></i> Alerted for Failing
                                 </span>
                             {% endif %}
+                        </td>
+                        <td style="text-align: center;">
+                            <button 
+                                class="btn-secondary-modern btn-sm-modern" 
+                                title="View Details"
+                                style="padding: 0.4rem 0.6rem; font-size: 0.85rem;"
+                            >
+                                <i class="bi bi-eye"></i>
+                            </button>
                         </td>
                     </tr>
                     {% empty %}
                     <tr>
-                        <td colspan="5" style="padding: 3rem 1.5rem; text-align: center;">
-                            <i class="bi bi-shield-check" style="font-size: 3rem; color: var(--secondary-color); display: block; margin-bottom: 1rem;"></i>
-                            <p class="text-muted" style="margin: 0 0 1rem 0;">No active academic alerts found.</p>
-                            <a href="{% url 'import_records' %}" class="btn-primary-modern">
-                                <i class="bi bi-plus-circle"></i> Start Tracking
+                        <td colspan="7" style="padding: 3rem 1.5rem; text-align: center;">
+                            <i class="bi bi-inbox" style="font-size: 3rem; color: var(--gray-300); display: block; margin-bottom: 1rem;"></i>
+                            <p class="text-muted" style="margin: 0 0 1rem 0;">No records found matching your filters.</p>
+                            <a href="{% url 'compartment_students' %}" class="btn-primary-modern">
+                                <i class="bi bi-arrow-left"></i> Clear Filters
                             </a>
                         </td>
                     </tr>
@@ -91,24 +215,36 @@
     </div>
 </div>
 
-<!-- Quick Stats -->
-<div class="gap-3 mt-4" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));">
-    <div class="stat-card">
-        <div class="stat-card-icon danger">
-            <i class="bi bi-exclamation-triangle-fill"></i>
+<!-- Statistics -->
+<div class="gap-3 mt-4" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));">
+    <div class="stat-card" style="background: white; padding: 1.5rem; border-radius: var(--border-radius); border: 1px solid var(--gray-200);">
+        <div style="display: flex; align-items: center; gap: 1rem;">
+            <div style="background: var(--danger); color: white; width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">
+                <i class="bi bi-exclamation-triangle-fill"></i>
+            </div>
+            <div>
+                <div style="color: var(--gray-600); font-size: 0.9rem; margin-bottom: 0.25rem;">Total Active Cases</div>
+                <div style="color: var(--danger); font-size: 2rem; font-weight: 700;">{{ records.count }}</div>
+            </div>
         </div>
-        <div class="stat-card-label">Pending Alerts</div>
-        <div class="stat-card-value" style="color: var(--danger-color);">
-            {{ records|dictsort:"is_cleared"|length }}
-        </div>
-    </div>
-    
-    <div class="stat-card">
-        <div class="stat-card-icon success">
-            <i class="bi bi-check-circle-fill"></i>
-        </div>
-        <div class="stat-card-label">Cleared Cases</div>
-        <div class="stat-card-value" style="color: var(--secondary-color);">0</div>
     </div>
 </div>
+
+<style>
+    .btn-sm-modern {
+        padding: 0.5rem 0.75rem;
+        font-size: 0.875rem;
+    }
+    
+    .badge-info {
+        background: #0dcaf0;
+        color: white;
+    }
+</style>
+
+<script>
+    // Show current date for comparison
+    const now = new Date();
+</script>
+
 {% endblock %}

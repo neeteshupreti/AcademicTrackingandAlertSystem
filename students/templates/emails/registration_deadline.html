@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Compartment Registration Deadline</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #f8f9fa;
+            padding: 20px;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+            border-radius: 5px 5px 0 0;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+            font-weight: 600;
+        }
+        .content {
+            background-color: white;
+            padding: 30px;
+            border-radius: 0 0 5px 5px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .greeting {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 16px;
+        }
+        .alert-box {
+            background-color: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        .alert-box p {
+            margin: 0;
+            color: #856404;
+            font-weight: 500;
+        }
+        .deadline-info {
+            background-color: #e7f3ff;
+            border-left: 4px solid #667eea;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        .deadline-info h3 {
+            color: #667eea;
+            margin-top: 0;
+        }
+        .info-row {
+            margin: 10px 0;
+            display: flex;
+            justify-content: space-between;
+        }
+        .label {
+            font-weight: 600;
+            color: #333;
+        }
+        .value {
+            color: #555;
+        }
+        .action-section {
+            background-color: #f0f4ff;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 4px;
+            text-align: center;
+        }
+        .action-button {
+            display: inline-block;
+            background-color: #667eea;
+            color: white;
+            padding: 12px 30px;
+            text-decoration: none;
+            border-radius: 4px;
+            font-weight: 600;
+            margin: 10px 0;
+        }
+        .action-button:hover {
+            background-color: #764ba2;
+        }
+        .checklist {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 20px 0;
+        }
+        .checklist h4 {
+            color: #667eea;
+            margin-top: 0;
+        }
+        .checklist ul {
+            list-style-position: inside;
+            padding-left: 0;
+        }
+        .checklist li {
+            margin: 8px 0;
+            color: #555;
+        }
+        .footer {
+            text-align: center;
+            padding: 20px;
+            font-size: 12px;
+            color: #777;
+            border-top: 1px solid #ddd;
+            margin-top: 20px;
+        }
+        .support-contact {
+            color: #667eea;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📝 Compartment Registration Required</h1>
+        </div>
+        
+        <div class="content">
+            <div class="greeting">
+                <p>Dear <strong>{{ student_name }}</strong>,</p>
+            </div>
+            
+            <div class="alert-box">
+                <p>⚠️ This is an important notification from ATAS (Academic Tracking and Alert System). Action is required within the deadline.</p>
+            </div>
+            
+            <p>You are eligible for a compartment examination in the following subject:</p>
+            
+            <div class="deadline-info">
+                <h3>Subject Information</h3>
+                <div class="info-row">
+                    <span class="label">Subject Code:</span>
+                    <span class="value">{{ subject_code }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="label">Subject Name:</span>
+                    <span class="value">{{ subject_name }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="label">Registration ID:</span>
+                    <span class="value">{{ student_id }}</span>
+                </div>
+            </div>
+            
+            <div class="deadline-info">
+                <h3>⏰ Registration Deadline</h3>
+                <div class="info-row">
+                    <span class="label">Deadline Date:</span>
+                    <span class="value" style="color: #d32f2f; font-weight: 600;">{{ registration_deadline }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="label">Time:</span>
+                    <span class="value">{{ registration_time }}</span>
+                </div>
+                <p style="margin: 10px 0 0 0; color: #d32f2f; font-size: 14px;">⚠️ <strong>Do not miss this deadline!</strong></p>
+            </div>
+            
+            <div class="checklist">
+                <h4>📋 What You Need to Do</h4>
+                <ul>
+                    <li>Visit the Academic Office or Online Portal immediately</li>
+                    <li>Complete your compartment exam registration</li>
+                    <li>Pay any applicable fees before the deadline</li>
+                    <li>Note down your exam date and time (you'll receive a separate notification)</li>
+                    <li>Start preparing for the examination</li>
+                </ul>
+            </div>
+            
+            <div class="action-section">
+                <p>Questions or need help with registration?</p>
+                <p>Contact us: <a href="mailto:{{ support_email }}" class="support-contact">{{ support_email }}</a></p>
+            </div>
+            
+            <p style="color: #666; font-size: 14px;">
+                This is an automated notification from the Academic Tracking and Alert System. 
+                Please ensure you have registered before the deadline to avoid missing your compartment examination opportunity.
+            </p>
+        </div>
+        
+        <div class="footer">
+            <p>© {{ current_year }} ATAS - Academic Tracking and Alert System</p>
+            <p>This is an automated email. Please do not reply to this address.</p>
+        </div>
+    </div>
+</body>
+</html>

@@ -132,6 +132,43 @@ LOGOUT_REDIRECT_URL = 'login'
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
+# Email Configuration
+# ==================
+# For development: using console backend (prints to console instead of sending)
+# For production: use SMTP backend with real email service
+
+# DEVELOPMENT (Console Backend) - Emails print to terminal
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+# PRODUCTION (Gmail SMTP) - Uncomment to use Gmail
+# Follow these steps to set up Gmail:
+# 1. Go to myaccount.google.com
+# 2. Click "Security" in left sidebar
+# 3. Enable "2-Step Verification" (if not already enabled)
+# 4. Go to "App passwords" and create a password for "Mail" on "Other (custom name)"
+# 5. Copy the 16-character password and use it below
+# 6. Don't use your regular Gmail password - use the app password!
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'nitesh.aspire.ku.2024@gmail.com'  # Your Gmail address
+EMAIL_HOST_PASSWORD = 'bqrm lswo jvhb knsp'  # Your 16-char app password
+
+# ALTERNATIVE: SendGrid (Free tier: 100 emails/day)
+# EMAIL_BACKEND = 'sendgrid_backend.SendgridBackend'
+# SENDGRID_API_KEY = 'your-sendgrid-api-key'
+
+# ALTERNATIVE: Brevo/Sendinblue (Free tier: 300 emails/day)
+# EMAIL_BACKEND = 'sib_api_v3_sdk.DjangoEmail.SendersBackend'  # Requires sib-api-v3-sdk package
+# SIB_API_KEY = 'your-brevo-api-key'
+# SIB_API_KEY_TIMEOUT = 10  # seconds
+
+# Email sender details
+DEFAULT_FROM_EMAIL = 'atas@aspirecollege.edu.np'
+SERVER_EMAIL = 'atas@aspirecollege.edu.np'
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 

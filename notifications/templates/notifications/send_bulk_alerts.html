@@ -1,0 +1,359 @@
+{% extends "core/admin_base.html" %}
+{% load static %}
+
+{% block title %}Send Bulk Alerts - ATAS{% endblock %}
+
+{% block content %}
+<!-- Alert Sub-Header Navigation -->
+<div class="alert-sub-header">
+    <div class="alert-sub-header-container">
+        <a href="{% url 'send_bulk_alerts' %}" class="alert-sub-header-tab active">
+            <i class="bi bi-megaphone"></i>
+            <span>Bulk Alerts</span>
+        </a>
+        <a href="{% url 'send_quick_alert' %}" class="alert-sub-header-tab">
+            <i class="bi bi-lightning-charge"></i>
+            <span>Quick Alert</span>
+        </a>
+    </div>
+</div>
+
+<div style="padding: 2rem 0;">
+    <!-- Page Header -->
+    <div style="margin-bottom: 2rem;">
+        <h1 style="font-size: 2rem; font-weight: 700; color: var(--gray-900); margin-bottom: 0.5rem;">
+            <i class="bi bi-megaphone"></i> Send Bulk Alerts
+        </h1>
+        <p style="color: var(--gray-500); margin-bottom: 0;">Send alerts to multiple students with intelligent filtering</p>
+    </div>
+
+    <!-- Messages -->
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert-modern alert-{{ message.tags }}" role="alert">
+                <i class="bi bi-{% if message.tags == 'error' %}exclamation-circle-fill{% elif message.tags == 'success' %}check-circle-fill{% else %}info-circle-fill{% endif %}"></i>
+                <div>{{ message }}</div>
+                <button class="alert-close" onclick="this.parentElement.style.display='none';">
+                    <i class="bi bi-x"></i>
+                </button>
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <div class="card-modern" style="padding: 2rem;">
+        <form method="post" id="bulkAlertForm">
+            {% csrf_token %}
+
+            <!-- Statistics Cards -->
+            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem; margin-bottom: 2rem;">
+                <div style="background: linear-gradient(135deg, var(--primary-light) 0%, rgba(59, 130, 246, 0.1) 100%); padding: 1.5rem; border-radius: var(--border-radius); border: 1px solid var(--primary-light);">
+                    <p style="margin: 0 0 0.5rem 0; color: var(--gray-600); font-size: 0.875rem; font-weight: 600;">Active Students</p>
+                    <h3 style="margin: 0; color: var(--primary); font-size: 2rem; font-weight: 700;">{{ total_students }}</h3>
+                </div>
+                <div style="background: linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(239, 68, 68, 0.05) 100%); padding: 1.5rem; border-radius: var(--border-radius); border: 1px solid rgba(239, 68, 68, 0.2);">
+                    <p style="margin: 0 0 0.5rem 0; color: var(--gray-600); font-size: 0.875rem; font-weight: 600;">Failed Subjects</p>
+                    <h3 style="margin: 0; color: var(--danger); font-size: 2rem; font-weight: 700;">{{ total_failed_subjects }}</h3>
+                </div>
+            </div>
+
+            <hr style="border: none; border-top: 1px solid var(--gray-200); margin: 2rem 0;">
+
+            <!-- Alert Type Selection -->
+            <div style="margin-bottom: 2rem;">
+                <h3 style="font-size: 1.125rem; font-weight: 600; margin-bottom: 1rem; color: var(--gray-900);">
+                    <i class="bi bi-bell"></i> Alert Type
+                </h3>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem;">
+                    {% for value, label in form.alert_type.field.choices %}
+                        <label style="display: flex; align-items: flex-start; gap: 0.75rem; padding: 1rem; border: 2px solid var(--gray-200); border-radius: var(--border-radius); cursor: pointer; transition: all 0.2s ease;" onmouseover="this.style.borderColor='var(--primary)'; this.style.backgroundColor='var(--primary-light)'" onmouseout="this.style.borderColor='var(--gray-200)'; this.style.backgroundColor='transparent'">
+                            <input type="radio" name="alert_type" value="{{ value }}" style="margin-top: 3px; cursor: pointer;">
+                            <div>
+                                <strong style="color: var(--gray-900); display: block;">
+                                    {% if value == 'failing_record' %}
+                                        <i class="bi bi-exclamation-triangle"></i> Failing Subjects
+                                    {% elif value == 'compart_registration' %}
+                                        <i class="bi bi-calendar2-check"></i> Registration Deadline
+                                    {% else %}
+                                        <i class="bi bi-calendar-event"></i> Exam Date
+                                    {% endif %}
+                                </strong>
+                                <small style="color: var(--gray-600);">
+                                    {% if value == 'failing_record' %}
+                                        Notify about failed subjects
+                                    {% elif value == 'compart_registration' %}
+                                        Remind about registration deadline
+                                    {% else %}
+                                        Remind about exam schedule
+                                    {% endif %}
+                                </small>
+                            </div>
+                        </label>
+                    {% endfor %}
+                </div>
+                {% if form.alert_type.errors %}<div class="alert-modern alert-error" style="margin-top: 1rem;">{{ form.alert_type.errors }}</div>{% endif %}
+            </div>
+
+            <hr style="border: none; border-top: 1px solid var(--gray-200); margin: 2rem 0;">
+
+            <!-- Student Selection with Dropdowns -->
+            <div style="margin-bottom: 2rem;">
+                <h3 style="font-size: 1.125rem; font-weight: 600; margin-bottom: 1rem; color: var(--gray-900);">
+                    <i class="bi bi-people"></i> Select Students
+                </h3>
+                
+                <!-- Filter Dropdowns -->
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; margin-bottom: 1.5rem;">
+                    <div>
+                        <label style="display: block; font-weight: 600; margin-bottom: 0.5rem; color: var(--gray-900);">Academic Year</label>
+                        {{ form.year }}
+                    </div>
+                    <div>
+                        <label style="display: block; font-weight: 600; margin-bottom: 0.5rem; color: var(--gray-900);">Semester</label>
+                        {{ form.semester }}
+                    </div>
+                </div>
+
+                <!-- Student Checkboxes -->
+                <div style="border: 1px solid var(--gray-200); border-radius: var(--border-radius); max-height: 400px; overflow-y: auto; background: white;">
+                    <div id="studentsList" style="padding: 0;">
+                        {% if form.students %}
+                            {% for checkbox in form.students %}
+                                <label style="display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 1rem; border-bottom: 1px solid var(--gray-100); cursor: pointer; transition: background-color 0.2s ease;" onmouseover="this.style.backgroundColor='var(--gray-50)'" onmouseout="this.style.backgroundColor='transparent'">
+                                    {{ checkbox.tag }}
+                                    <div style="flex: 1;">
+                                        <span style="color: var(--gray-900); font-weight: 500;">{{ checkbox.choice_label }}</span>
+                                    </div>
+                                </label>
+                            {% endfor %}
+                        {% else %}
+                            <p style="padding: 2rem; color: var(--gray-500); text-align: center; margin: 0;">No active students found.</p>
+                        {% endif %}
+                    </div>
+                </div>
+                {% if form.students.errors %}<div class="alert-modern alert-error" style="margin-top: 1rem;">{{ form.students.errors }}</div>{% endif %}
+            </div>
+
+            <hr style="border: none; border-top: 1px solid var(--gray-200); margin: 2rem 0;">
+
+            <!-- Subject Selection -->
+            <div style="margin-bottom: 2rem;">
+                <label style="display: block; font-weight: 600; margin-bottom: 0.5rem; color: var(--gray-900);">
+                    <i class="bi bi-book"></i> Specific Subjects (Optional)
+                </label>
+                {{ form.subjects }}
+                <small style="color: var(--gray-500); margin-top: 0.5rem; display: block;">Leave empty to alert about all subjects. Separate codes with commas (e.g., COMP102, MATH101)</small>
+                {% if form.subjects.errors %}<div class="alert-modern alert-error" style="margin-top: 0.5rem;">{{ form.subjects.errors }}</div>{% endif %}
+            </div>
+
+            <!-- Custom Message -->
+            <div style="margin-bottom: 2rem;">
+                <label style="display: block; font-weight: 600; margin-bottom: 0.5rem; color: var(--gray-900);">
+                    <i class="bi bi-chat-dots"></i> Custom Message (Optional)
+                </label>
+                {{ form.custom_message }}
+                {% if form.custom_message.errors %}<div class="alert-modern alert-error" style="margin-top: 0.5rem;">{{ form.custom_message.errors }}</div>{% endif %}
+            </div>
+
+            <!-- Test Email Checkbox -->
+            <div style="margin-bottom: 2rem; padding: 1rem; background-color: var(--warning); border-left: 4px solid var(--warning); border-radius: 4px;">
+                <label style="display: flex; align-items: center; gap: 0.75rem; cursor: pointer;">
+                    {{ form.send_test }}
+                    <span style="color: white; font-weight: 500;">
+                        <i class="bi bi-envelope-check"></i> Send test email first (to your inbox)
+                    </span>
+                </label>
+            </div>
+
+            <hr style="border: none; border-top: 1px solid var(--gray-200); margin: 2rem 0;">
+
+            <!-- Action Buttons -->
+            <div style="display: flex; gap: 1rem;">
+                <button type="submit" class="btn-primary">
+                    <i class="bi bi-paper-plane"></i> Send Alerts
+                </button>
+                <a href="{% url 'home' %}" class="btn-secondary">
+                    <i class="bi bi-x-lg"></i> Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+
+    <!-- Help Section -->
+    <div class="card-modern" style="margin-top: 2rem; background-color: var(--primary); color: white;">
+        <div style="padding: 1.5rem;">
+            <h4 style="margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem;">
+                <i class="bi bi-info-circle"></i> How to Use Bulk Alerts
+            </h4>
+            <ul style="margin: 0; padding-left: 1.5rem;">
+                <li>Filter students by academic year and semester using dropdowns</li>
+                <li>Select the alert type and specific students to notify</li>
+                <li>Optionally specify subject codes or provide a custom message</li>
+                <li>Send a test email first to verify the alert format</li>
+                <li>Click "Send Alerts" to notify all selected students immediately</li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<style>
+    input[type="text"],
+    textarea,
+    select {
+        width: 100%;
+        padding: 0.75rem;
+        border: 1px solid var(--gray-300);
+        border-radius: var(--border-radius);
+        font-family: inherit;
+        font-size: 1rem;
+        color: var(--gray-900);
+        transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        box-sizing: border-box;
+    }
+
+    input[type="text"]:focus,
+    textarea:focus,
+    select:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px var(--primary-light);
+    }
+
+    textarea {
+        resize: vertical;
+        min-height: 120px;
+    }
+
+    input[type="checkbox"],
+    input[type="radio"] {
+        width: 1.125rem;
+        height: 1.125rem;
+        cursor: pointer;
+        accent-color: var(--primary);
+    }
+
+    .btn-primary {
+        background-color: var(--primary);
+        color: white;
+        padding: 0.875rem 1.5rem;
+        border: none;
+        border-radius: var(--border-radius);
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        flex: 1;
+        text-decoration: none;
+    }
+
+    .btn-primary:hover {
+        background-color: var(--primary-dark);
+        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+    }
+
+    .btn-secondary {
+        background-color: var(--gray-200);
+        color: var(--gray-900);
+        padding: 0.875rem 1.5rem;
+        border: none;
+        border-radius: var(--border-radius);
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        flex: 1;
+    }
+
+    .btn-secondary:hover {
+        background-color: var(--gray-300);
+    }
+
+    .card-modern {
+        background: white;
+        border-radius: var(--border-radius);
+        border: 1px solid var(--gray-200);
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    }
+
+    .alert-modern {
+        padding: 1rem;
+        border-radius: var(--border-radius);
+        display: flex;
+        align-items: flex-start;
+        gap: 0.75rem;
+        margin-bottom: 1rem;
+    }
+
+    .alert-modern.alert-success {
+        background-color: var(--secondary);
+        border: 1px solid var(--secondary);
+        color: white;
+    }
+
+    .alert-modern.alert-error {
+        background-color: var(--danger);
+        border: 1px solid var(--danger);
+        color: white;
+    }
+
+    .alert-modern.alert-info {
+        background-color: var(--primary);
+        border: 1px solid var(--primary);
+        color: white;
+    }
+
+    .alert-close {
+        background: none;
+        border: none;
+        color: inherit;
+        cursor: pointer;
+        font-size: 1.25rem;
+        padding: 0;
+        margin-left: auto;
+    }
+</style>
+
+<script>
+    // Get student list by year and semester
+    function updateStudents() {
+        const year = document.getElementById('id_year').value;
+        const semester = document.getElementById('id_semester').value;
+        
+        const params = new URLSearchParams();
+        if (year) params.append('year', year);
+        if (semester) params.append('semester', semester);
+        
+        fetch(`{% url 'get_students' %}?${params}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    const studentsList = document.getElementById('studentsList');
+                    if (data.students.length === 0) {
+                        studentsList.innerHTML = '<p style="padding: 2rem; color: var(--gray-500); text-align: center; margin: 0;">No students found with selected filters.</p>';
+                    } else {
+                        studentsList.innerHTML = data.students.map(student => `
+                            <label style="display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 1rem; border-bottom: 1px solid var(--gray-100); cursor: pointer; transition: background-color 0.2s ease;" onmouseover="this.style.backgroundColor='var(--gray-50)'" onmouseout="this.style.backgroundColor='transparent'">
+                                <input type="checkbox" name="students" value="${student.id}" style="width: 1.125rem; height: 1.125rem; cursor: pointer; accent-color: var(--primary);">
+                                <div style="flex: 1;">
+                                    <span style="color: var(--gray-900); font-weight: 500;">${student.name}</span>
+                                    <small style="color: var(--gray-500); display: block;">${student.registration_number}</small>
+                                </div>
+                            </label>
+                        `).join('');
+                    }
+                }
+            })
+            .catch(error => console.error('Error fetching students:', error));
+    }
+    
+    // Add event listeners to dropdowns
+    document.getElementById('id_year').addEventListener('change', updateStudents);
+    document.getElementById('id_semester').addEventListener('change', updateStudents);
+</script>
+{% endblock %}

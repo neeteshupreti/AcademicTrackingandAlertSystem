@@ -7,4 +7,5 @@ urlpatterns = [
     path('process-scan/', views.process_scan, name='process_scan'),
     path('save-verified/', views.save_verified_data, name='save_verified'),
     path('list/', views.compartment_students_list, name='compartment_students'),
+    path('api/record/<int:record_id>/', views.get_record_detail, name='record_detail_api'),
 ]

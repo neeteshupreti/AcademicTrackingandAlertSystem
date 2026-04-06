@@ -9,150 +9,288 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
     <link href="{% static 'css/style.css' %}" rel="stylesheet">
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #f8fafc;
+            background-image: 
+                radial-gradient(circle at 20% 50%, rgba(59, 130, 246, 0.05) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(16, 185, 129, 0.05) 0%, transparent 50%);
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
             font-family: 'Inter', sans-serif;
         }
-        
-        .login-wrapper {
+
+        .login-container {
             width: 100%;
-            max-width: 420px;
-            padding: 2rem;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 1.5rem;
         }
-        
-        .login-card {
-            background: #fff;
-            border-radius: 16px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+
+        .login-wrapper {
+            display: grid;
+            grid-template-columns: 1fr 1.2fr;
+            gap: 0;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            border: 1px solid #e2e8f0;
             overflow: hidden;
+            min-height: 500px;
         }
-        
-        .login-header {
-            background: linear-gradient(135deg, #3b82f6, #1e40af);
-            padding: 2.5rem 1.5rem;
-            text-align: center;
-            color: #fff;
+
+        .login-side {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            padding: 4rem 3rem;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: flex-start;
         }
-        
-        .login-header-title {
-            font-size: 2rem;
-            font-weight: 700;
-            margin: 0 0 0.5rem 0;
+
+        .login-side-logo {
             display: flex;
             align-items: center;
-            justify-content: center;
             gap: 0.75rem;
+            margin-bottom: 3rem;
         }
-        
-        .login-header-subtitle {
+
+        .login-side-logo i {
+            font-size: 2rem;
+        }
+
+        .login-side-logo span {
+            font-size: 1.5rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+        }
+
+        .login-side-text h2 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            line-height: 1.2;
+        }
+
+        .login-side-text p {
             font-size: 0.95rem;
-            opacity: 0.95;
-            margin: 0;
+            opacity: 0.9;
+            line-height: 1.6;
+            margin-bottom: 2rem;
         }
-        
-        .login-body {
-            padding: 2rem;
+
+        .login-features {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            margin-top: 2rem;
         }
-        
+
+        .feature {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 0.9rem;
+        }
+
+        .feature i {
+            font-size: 1.1rem;
+            opacity: 0.8;
+        }
+
+        .login-form-wrapper {
+            padding: 3rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .login-form-header {
+            margin-bottom: 2rem;
+        }
+
+        .login-form-header h1 {
+            font-size: 1.75rem;
+            color: var(--gray-900);
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .login-form-header p {
+            color: var(--gray-500);
+            font-size: 0.95rem;
+        }
+
         .form-group-login {
             margin-bottom: 1.5rem;
         }
-        
+
         .form-label-login {
             display: block;
             margin-bottom: 0.5rem;
-            font-weight: 600;
+            font-weight: 500;
             color: var(--gray-700);
-            font-size: 0.95rem;
+            font-size: 0.9rem;
         }
-        
+
+        .form-input-wrapper {
+            position: relative;
+        }
+
         .form-input-login {
             width: 100%;
-            padding: 0.875rem 1rem;
-            border: 1.5px solid var(--gray-300);
-            border-radius: 10px;
+            padding: 0.875rem 1rem 0.875rem 2.75rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
             font-family: 'Inter', sans-serif;
             font-size: 0.95rem;
-            transition: all 0.3s ease;
+            transition: all 0.2s ease;
+            background: #f9fafb;
         }
-        
+
         .form-input-login:focus {
             outline: none;
             border-color: #3b82f6;
-            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+            background: white;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
         }
-        
+
         .form-input-login::placeholder {
             color: var(--gray-400);
         }
-        
+
+        .form-input-icon {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--gray-400);
+            font-size: 1rem;
+        }
+
         .btn-login {
             width: 100%;
-            padding: 0.875rem;
-            background: linear-gradient(135deg, #3b82f6, #1e40af);
-            color: #fff;
+            padding: 0.875rem 1.5rem;
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            color: white;
             border: none;
-            border-radius: 10px;
-            font-size: 1rem;
+            border-radius: 8px;
+            font-size: 0.95rem;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: all 0.2s ease;
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 0.5rem;
+            margin-top: 1.5rem;
         }
-        
+
         .btn-login:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(59, 130, 246, 0.4);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
         }
-        
+
         .btn-login:active {
             transform: translateY(0);
         }
-        
-        .login-footer {
-            text-align: center;
-            padding: 0 2rem 1.5rem 2rem;
-            color: var(--gray-500);
-            font-size: 0.9rem;
-        }
-        
+
         .error-message {
             background-color: #fee2e2;
             border: 1px solid #fca5a5;
             color: #991b1b;
-            padding: 1rem;
-            border-radius: 10px;
+            padding: 0.875rem 1rem;
+            border-radius: 8px;
             margin-bottom: 1.5rem;
             display: flex;
             align-items: flex-start;
             gap: 0.75rem;
+            font-size: 0.9rem;
         }
-        
+
         .error-message i {
-            font-size: 1.2rem;
+            font-size: 1rem;
             flex-shrink: 0;
+            margin-top: 0.125rem;
+        }
+
+        @media (max-width: 768px) {
+            .login-wrapper {
+                grid-template-columns: 1fr;
+                min-height: auto;
+            }
+
+            .login-side {
+                padding: 2.5rem 2rem;
+                min-height: 250px;
+            }
+
+            .login-side h2 {
+                font-size: 1.5rem;
+            }
+
+            .login-side-text p {
+                margin-bottom: 1rem;
+            }
+
+            .login-features {
+                display: none;
+            }
+
+            .login-form-wrapper {
+                padding: 2rem;
+            }
+
+            .login-form-header h1 {
+                font-size: 1.5rem;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="login-wrapper">
-        <div class="login-card">
-            <div class="login-header">
-                <div class="login-header-title">
+    <div class="login-container">
+        <div class="login-wrapper">
+            <!-- Left Side: Branding -->
+            <div class="login-side">
+                <div class="login-side-logo">
                     <i class="bi bi-graph-up"></i>
-                    ATAS
+                    <span>ATAS</span>
                 </div>
-                <p class="login-header-subtitle">Academic Tracking & Alert System</p>
+                <div class="login-side-text">
+                    <h2>Academic Tracking System</h2>
+                    <p>Manage student performance, track compartment exams, and send timely alerts.</p>
+                    <div class="login-features">
+                        <div class="feature">
+                            <i class="bi bi-check-circle"></i>
+                            <span>Real-time tracking</span>
+                        </div>
+                        <div class="feature">
+                            <i class="bi bi-check-circle"></i>
+                            <span>Smart notifications</span>
+                        </div>
+                        <div class="feature">
+                            <i class="bi bi-check-circle"></i>
+                            <span>Data management</span>
+                        </div>
+                    </div>
+                </div>
             </div>
-            
-            <div class="login-body">
+
+            <!-- Right Side: Login Form -->
+            <div class="login-form-wrapper">
+                <div class="login-form-header">
+                    <h1>Welcome Back</h1>
+                    <p>Sign in to your account to continue</p>
+                </div>
+
                 {% if form.non_field_errors %}
                     <div class="error-message">
                         <i class="bi bi-exclamation-circle-fill"></i>
@@ -163,48 +301,50 @@
                         </div>
                     </div>
                 {% endif %}
-                
+
                 <form method="post" novalidate>
                     {% csrf_token %}
-                    
+
                     <div class="form-group-login">
                         <label for="username" class="form-label-login">
-                            <i class="bi bi-person-fill me-2" style="color: #3b82f6;"></i>Username
+                            Username
                         </label>
-                        <input 
-                            type="text" 
-                            id="username" 
-                            name="username" 
-                            class="form-input-login" 
-                            placeholder="Enter your username"
-                            required
-                            autofocus
-                        >
+                        <div class="form-input-wrapper">
+                            <i class="bi bi-person-fill form-input-icon"></i>
+                            <input 
+                                type="text" 
+                                id="username" 
+                                name="username" 
+                                class="form-input-login" 
+                                placeholder="Enter your username"
+                                required
+                                autofocus
+                            >
+                        </div>
                     </div>
-                    
+
                     <div class="form-group-login">
                         <label for="password" class="form-label-login">
-                            <i class="bi bi-lock-fill me-2" style="color: #3b82f6;"></i>Password
+                            Password
                         </label>
-                        <input 
-                            type="password" 
-                            id="password" 
-                            name="password" 
-                            class="form-input-login" 
-                            placeholder="Enter your password"
-                            required
-                        >
+                        <div class="form-input-wrapper">
+                            <i class="bi bi-lock-fill form-input-icon"></i>
+                            <input 
+                                type="password" 
+                                id="password" 
+                                name="password" 
+                                class="form-input-login" 
+                                placeholder="Enter your password"
+                                required
+                            >
+                        </div>
                     </div>
-                    
+
                     <button type="submit" class="btn-login">
                         <i class="bi bi-box-arrow-in-right"></i>
                         Sign In
                     </button>
                 </form>
-            </div>
-            
-            <div class="login-footer">
-                <i class="bi bi-shield-check"></i> Secure login
             </div>
         </div>
     </div>

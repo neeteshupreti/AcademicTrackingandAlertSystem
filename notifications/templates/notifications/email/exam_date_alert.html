@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body { font-family: Arial, sans-serif; color: #333; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background-color: #4CAF50; color: white; padding: 20px; border-radius: 5px 5px 0 0; }
+        .content { background-color: #f9f9f9; padding: 20px; border: 1px solid #ddd; }
+        .subject-item { background-color: white; padding: 15px; margin: 10px 0; border-left: 4px solid #4CAF50; }
+        .subject-code { font-weight: bold; color: #4CAF50; }
+        .exam-date { font-size: 18px; font-weight: bold; color: #4CAF50; }
+        .footer { background-color: #f0f0f0; padding: 15px; border-radius: 0 0 5px 5px; text-align: center; font-size: 12px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h2>Alert: Compartment Exam Date</h2>
+        </div>
+
+        <div class="content">
+            <p>Dear {{ student_name }},</p>
+
+            <p>This is a reminder about your upcoming compartment exams scheduled for the following subjects:</p>
+
+            {% for exam in exams %}
+                <div class="subject-item">
+                    <p><span class="subject-code">{{ exam.code }}</span></p>
+                    <p>
+                        <strong>Subject:</strong> {{ exam.name }}<br>
+                        <strong>Exam Date & Time:</strong> <span class="exam-date">{{ exam.exam_date|date:"Y-m-d H:i" }}</span>
+                    </p>
+                </div>
+            {% endfor %}
+
+            <div style="background-color: #e8f5e9; padding: 15px; border-left: 4px solid #4CAF50; margin-top: 20px;">
+                <strong>✓ Important Reminders:</strong>
+                <ul style="margin: 10px 0; padding-left: 20px;">
+                    <li>Arrive 15 minutes before the exam starts</li>
+                    <li>Bring your student ID and required documents</li>
+                    <li>Check the venue details in your exam portal</li>
+                </ul>
+            </div>
+
+            {% if custom_message %}
+                <div style="background-color: #e7f3ff; padding: 15px; border-left: 4px solid #2196F3; margin-top: 20px;">
+                    <strong>Additional Information:</strong>
+                    <p>{{ custom_message }}</p>
+                </div>
+            {% endif %}
+
+            <p style="margin-top: 20px; color: #666;">
+                For more details about your exam, please log into the ATAS portal.
+            </p>
+        </div>
+
+        <div class="footer">
+            <p>ATAS - Academic Tracking and Alert System</p>
+            <p>Kathmandu University</p>
+        </div>
+    </div>
+</body>
+</html>

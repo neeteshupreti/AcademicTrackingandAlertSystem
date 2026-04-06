@@ -46,14 +46,14 @@
     </div>
 </div>
 
-<!-- Recently Flagged Students Section -->
+<!-- Recently Flagged Students Section - Compartment Records -->
 <div class="card-modern">
     <div class="card-header-modern d-flex justify-between align-center">
         <div>
             <h3 style="font-size: 1.25rem;">
                 <i class="bi bi-exclamation-circle me-2"></i>Recently Flagged Students
             </h3>
-            <p class="text-muted" style="margin-bottom: 0; font-size: 0.9rem;">Students with failing grades or GPA issues</p>
+            <p class="text-muted" style="margin-bottom: 0; font-size: 0.9rem;">Compartment records requiring attention</p>
         </div>
     </div>
     
@@ -62,10 +62,10 @@
             <table class="table-modern" style="width: 100%;">
                 <thead>
                     <tr>
-                        <th>Student Name</th>
-                        <th>Reg. Number</th>
-                        <th>Subject</th>
-                        <th>Grade</th>
+                        <th>Student ID</th>
+                        <th>Full Name</th>
+                        <th>Flagged Subject</th>
+                        <th>GPA/Grade</th>
                         <th>Status</th>
                         <th>Actions</th>
                     </tr>
@@ -74,26 +74,32 @@
                     {% for record in recent_flags %}
                     <tr>
                         <td>
-                            <strong>{{ record.student.name }}</strong>
-                        </td>
-                        <td>
                             <code style="background: var(--gray-100); padding: 0.25rem 0.5rem; border-radius: 4px;">
                                 {{ record.student.registration_number }}
                             </code>
                         </td>
+                        <td>
+                            <strong>{{ record.student.name }}</strong>
+                        </td>
                         <td>{{ record.subject_name }}</td>
                         <td>
-                            <span class="badge-modern badge-danger">
-                                Grade: {{ record.grade }}
-                            </span>
+                            <span style="color: var(--danger-color); font-weight: bold;">{{ record.grade }}</span>
                         </td>
                         <td>
+                            {% if not record.is_cleared %}
                             <span class="badge-modern badge-warning">
-                                <i class="bi bi-exclamation-circle"></i> Pending Alert
+                                <i class="bi bi-clock"></i> Action Required
                             </span>
+                            {% else %}
+                            <span class="badge-modern badge-success">
+                                <i class="bi bi-check-circle"></i> Cleared
+                            </span>
+                            {% endif %}
                         </td>
                         <td>
-                            <button class="btn-secondary-modern btn-sm-modern" title="View details">
+                            <button class="btn-secondary-modern btn-sm-modern" 
+                                    onclick="viewRecordDetails({{ record.id }})"
+                                    title="View details">
                                 <i class="bi bi-eye"></i>
                             </button>
                         </td>
@@ -112,6 +118,33 @@
                 </tbody>
             </table>
         </div>
+        {% if recent_flags %}
+        <div style="padding: 1rem 1.5rem; border-top: 1px solid var(--gray-200); text-align: right;">
+            <a href="{% url 'compartment_students' %}" class="btn-secondary-modern" style="display: inline-block;">
+                <i class="bi bi-arrow-right"></i> View All Records
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Record Details Modal -->
+<div id="recordDetailsModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); z-index: 1000; align-items: center; justify-content: center;">
+    <div style="background: white; border-radius: 8px; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3); max-width: 600px; width: 90%; max-height: 90vh; overflow-y: auto;">
+        <!-- Modal Header -->
+        <div style="padding: 1.5rem; border-bottom: 1px solid var(--gray-200); display: flex; justify-content: space-between; align-items: center;">
+            <h2 style="margin: 0; font-size: 1.5rem;">Record Details</h2>
+            <button onclick="closeRecordModal()" style="background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--gray-600);">
+                <i class="bi bi-x"></i>
+            </button>
+        </div>
+        
+        <!-- Modal Body -->
+        <div style="padding: 1.5rem;">
+            <div id="recordDetailsContent">
+                <p class="text-center text-muted">Loading...</p>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -124,4 +157,182 @@
         <i class="bi bi-list-check"></i> View All Compartments
     </a>
 </div>
+
+<script>
+function viewRecordDetails(recordId) {
+    const modal = document.getElementById('recordDetailsModal');
+    const content = document.getElementById('recordDetailsContent');
+    
+    content.innerHTML = '<p class="text-center text-muted">Loading...</p>';
+    modal.style.display = 'flex';
+    
+    fetch(`/students/api/record/${recordId}/`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                const record = data.record;
+                
+                const dateFormatter = new Intl.DateTimeFormat('en-US', {
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+                
+                const registrationDate = record.registration_deadline ? 
+                    dateFormatter.format(new Date(record.registration_deadline)) : 'Not Set';
+                const examDate = record.exam_date ? 
+                    dateFormatter.format(new Date(record.exam_date)) : 'Not Set';
+                
+                const statusColor = record.is_cleared ? 'success' : (record.exam_date && new Date(record.exam_date) < new Date() ? 'danger' : 'warning');
+                
+                content.innerHTML = `
+                    <div style="display: grid; gap: 1.5rem;">
+                        <!-- Student Info -->
+                        <div style="padding-bottom: 1.5rem; border-bottom: 1px solid var(--gray-200);">
+                            <h3 style="margin: 0 0 1rem 0; color: var(--gray-900);">Student Information</h3>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                                <div>
+                                    <p style="margin: 0 0 0.25rem 0; color: var(--gray-600); font-size: 0.85rem; text-transform: uppercase; font-weight: 600;">Name</p>
+                                    <p style="margin: 0; font-size: 1rem; color: var(--gray-900);">${record.student_name}</p>
+                                </div>
+                                <div>
+                                    <p style="margin: 0 0 0.25rem 0; color: var(--gray-600); font-size: 0.85rem; text-transform: uppercase; font-weight: 600;">Reg. Number</p>
+                                    <code style="background: var(--gray-100); padding: 0.25rem 0.5rem; border-radius: 4px; display: inline-block;">${record.registration_number}</code>
+                                </div>
+                                <div>
+                                    <p style="margin: 0 0 0.25rem 0; color: var(--gray-600); font-size: 0.85rem; text-transform: uppercase; font-weight: 600;">Email</p>
+                                    <p style="margin: 0; font-size: 0.95rem; color: var(--gray-900);">${record.student_email || 'N/A'}</p>
+                                </div>
+                                <div>
+                                    <p style="margin: 0 0 0.25rem 0; color: var(--gray-600); font-size: 0.85rem; text-transform: uppercase; font-weight: 600;">Current GPA</p>
+                                    <p style="margin: 0; font-size: 1rem; color: var(--gray-900); font-weight: 600;">${record.student_gpa.toFixed(2)}</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Subject & Grade Info -->
+                        <div style="padding-bottom: 1.5rem; border-bottom: 1px solid var(--gray-200);">
+                            <h3 style="margin: 0 0 1rem 0; color: var(--gray-900);">Subject & Academic Details</h3>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                                <div>
+                                    <p style="margin: 0 0 0.25rem 0; color: var(--gray-600); font-size: 0.85rem; text-transform: uppercase; font-weight: 600;">Subject Code</p>
+                                    <p style="margin: 0; font-size: 1rem; color: var(--gray-900);">${record.subject_code}</p>
+                                </div>
+                                <div>
+                                    <p style="margin: 0 0 0.25rem 0; color: var(--gray-600); font-size: 0.85rem; text-transform: uppercase; font-weight: 600;">Subject Name</p>
+                                    <p style="margin: 0; font-size: 1rem; color: var(--gray-900);">${record.subject_name}</p>
+                                </div>
+                                <div>
+                                    <p style="margin: 0 0 0.25rem 0; color: var(--gray-600); font-size: 0.85rem; text-transform: uppercase; font-weight: 600;">Grade</p>
+                                    <span style="display: inline-block; background: var(--danger-color); color: white; padding: 0.25rem 0.75rem; border-radius: 4px; font-weight: 600;">${record.grade}</span>
+                                </div>
+                                <div>
+                                    <p style="margin: 0 0 0.25rem 0; color: var(--gray-600); font-size: 0.85rem; text-transform: uppercase; font-weight: 600;">Year/Semester</p>
+                                    <p style="margin: 0; font-size: 1rem; color: var(--gray-900);">Year ${record.year}, Sem ${record.semester}</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Status Info -->
+                        <div style="padding-bottom: 1.5rem; border-bottom: 1px solid var(--gray-200);">
+                            <h3 style="margin: 0 0 1rem 0; color: var(--gray-900);">Current Status</h3>
+                            <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem;">
+                                <span style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem; border-radius: 6px; background: var(--${statusColor}-color); background-opacity: 0.1; border: 1px solid var(--${statusColor}-color);">
+                                    <i class="bi bi-info-circle" style="color: var(--${statusColor}-color);"></i>
+                                    <strong style="color: var(--${statusColor}-color);">${record.status_display}</strong>
+                                </span>
+                            </div>
+                            <div style="display: grid; gap: 0.75rem; font-size: 0.95rem;">
+                                <div>
+                                    <p style="margin: 0 0 0.25rem 0; color: var(--gray-600); font-weight: 500;">
+                                        <i class="bi bi-bell me-2"></i>Registration Deadline Notified:
+                                    </p>
+                                    <p style="margin: 0 0 0 1.5rem; color: var(--gray-900);">
+                                        ${record.registration_deadline_notified ? '<i class="bi bi-check-circle" style="color: var(--secondary-color);"></i> Yes' : '<i class="bi bi-x-circle" style="color: var(--gray-400);"></i> No'}
+                                    </p>
+                                </div>
+                                <div>
+                                    <p style="margin: 0 0 0.25rem 0; color: var(--gray-600); font-weight: 500;">
+                                        <i class="bi bi-bell me-2"></i>Exam Date Notified:
+                                    </p>
+                                    <p style="margin: 0 0 0 1.5rem; color: var(--gray-900);">
+                                        ${record.exam_date_notified ? '<i class="bi bi-check-circle" style="color: var(--secondary-color);"></i> Yes' : '<i class="bi bi-x-circle" style="color: var(--gray-400);"></i> No'}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Important Dates -->
+                        <div style="padding-bottom: 1.5rem; border-bottom: 1px solid var(--gray-200);">
+                            <h3 style="margin: 0 0 1rem 0; color: var(--gray-900);">Important Dates</h3>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                                <div>
+                                    <p style="margin: 0 0 0.25rem 0; color: var(--gray-600); font-size: 0.85rem; text-transform: uppercase; font-weight: 600;">Registration Deadline</p>
+                                    <p style="margin: 0; font-size: 0.95rem; color: var(--gray-900);">${registrationDate}</p>
+                                    ${record.days_to_registration !== null ? `<p style="margin: 0.25rem 0 0 0; font-size: 0.85rem; color: ${record.days_to_registration > 0 ? 'var(--secondary-color)' : 'var(--danger-color)'};">${record.days_to_registration > 0 ? record.days_to_registration + ' days left' : 'Passed'}</p>` : ''}
+                                </div>
+                                <div>
+                                    <p style="margin: 0 0 0.25rem 0; color: var(--gray-600); font-size: 0.85rem; text-transform: uppercase; font-weight: 600;">Exam Date</p>
+                                    <p style="margin: 0; font-size: 0.95rem; color: var(--gray-900);">${examDate}</p>
+                                    ${record.days_to_exam !== null ? `<p style="margin: 0.25rem 0 0 0; font-size: 0.85rem; color: ${record.days_to_exam > 0 ? 'var(--secondary-color)' : 'var(--danger-color)'};">${record.days_to_exam > 0 ? record.days_to_exam + ' days left' : 'Passed'}</p>` : ''}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Additional Info -->
+                        <div>
+                            <h3 style="margin: 0 0 1rem 0; color: var(--gray-900);">Additional Information</h3>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                                <div>
+                                    <p style="margin: 0 0 0.25rem 0; color: var(--gray-600); font-size: 0.85rem; text-transform: uppercase; font-weight: 600;">GPA at Failure</p>
+                                    <p style="margin: 0; font-size: 1rem; color: var(--gray-900);">${typeof record.gpa_at_failure === 'number' ? record.gpa_at_failure.toFixed(2) : record.gpa_at_failure}</p>
+                                </div>
+                                <div>
+                                    <p style="margin: 0 0 0.25rem 0; color: var(--gray-600); font-size: 0.85rem; text-transform: uppercase; font-weight: 600;">Cleared</p>
+                                    <p style="margin: 0; font-size: 1rem; color: var(--gray-900);">
+                                        ${record.is_cleared ? '<i class="bi bi-check-circle" style="color: var(--secondary-color);"></i> Yes' : '<i class="bi bi-x-circle" style="color: var(--gray-400);"></i> No'}
+                                    </p>
+                                </div>
+                                <div style="grid-column: 1 / -1;">
+                                    <p style="margin: 0 0 0.25rem 0; color: var(--gray-600); font-size: 0.85rem; text-transform: uppercase; font-weight: 600;">Record Created</p>
+                                    <p style="margin: 0; font-size: 0.95rem; color: var(--gray-900);">${dateFormatter.format(new Date(record.date_created))}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } else {
+                content.innerHTML = '<p class="text-center text-danger">Error loading record details</p>';
+            }
+        })
+        .catch(error => {
+            console.error('Error loading record details:', error);
+            content.innerHTML = '<p class="text-center text-danger">Failed to load record details</p>';
+        });
+}
+
+function closeRecordModal() {
+    const modal = document.getElementById('recordDetailsModal');
+    modal.style.display = 'none';
+}
+
+// Close modal when clicking outside the modal content
+document.getElementById('recordDetailsModal').addEventListener('click', function(e) {
+    if (e.target === this) {
+        closeRecordModal();
+    }
+});
+</script>
+
+<style>
+/* CSS Variables for colors used in the modal */
+:root {
+    --secondary-color: #10b981;
+    --danger-color: #ef4444;
+    --warning-color: #f59e0b;
+    --info-color: #3b82f6;
+}
+</style>
 {% endblock %}

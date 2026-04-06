@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Compartment Exam Date Notification</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #f8f9fa;
+            padding: 20px;
+        }
+        .header {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+            border-radius: 5px 5px 0 0;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+            font-weight: 600;
+        }
+        .content {
+            background-color: white;
+            padding: 30px;
+            border-radius: 0 0 5px 5px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .greeting {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 16px;
+        }
+        .alert-box {
+            background-color: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        .alert-box p {
+            margin: 0;
+            color: #856404;
+            font-weight: 500;
+        }
+        .exam-info {
+            background-color: #ffe0e6;
+            border-left: 4px solid #f5576c;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        .exam-info h3 {
+            color: #f5576c;
+            margin-top: 0;
+        }
+        .info-row {
+            margin: 12px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .label {
+            font-weight: 600;
+            color: #333;
+        }
+        .value {
+            color: #555;
+            font-size: 16px;
+        }
+        .exam-date-value {
+            color: #f5576c;
+            font-weight: 700;
+            font-size: 18px;
+        }
+        .subject-info {
+            background-color: #f0f4ff;
+            border-left: 4px solid #667eea;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        .subject-info h3 {
+            color: #667eea;
+            margin-top: 0;
+        }
+        .prep-section {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 4px;
+            margin: 20px 0;
+        }
+        .prep-section h4 {
+            color: #f5576c;
+            margin-top: 0;
+        }
+        .prep-list {
+            list-style-type: none;
+            padding-left: 0;
+        }
+        .prep-list li {
+            margin: 10px 0;
+            padding-left: 25px;
+            position: relative;
+            color: #555;
+        }
+        .prep-list li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #667eea;
+            font-weight: bold;
+        }
+        .important-notes {
+            background-color: #fff3cd;
+            border: 1px solid #ffc107;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 20px 0;
+        }
+        .important-notes h4 {
+            color: #856404;
+            margin-top: 0;
+        }
+        .important-notes ul {
+            margin: 10px 0;
+            padding-left: 20px;
+        }
+        .important-notes li {
+            color: #856404;
+            margin: 5px 0;
+        }
+        .footer {
+            text-align: center;
+            padding: 20px;
+            font-size: 12px;
+            color: #777;
+            border-top: 1px solid #ddd;
+            margin-top: 20px;
+        }
+        .support-contact {
+            color: #f5576c;
+            text-decoration: none;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📅 Your Compartment Exam Date</h1>
+        </div>
+        
+        <div class="content">
+            <div class="greeting">
+                <p>Dear <strong>{{ student_name }}</strong>,</p>
+            </div>
+            
+            <div class="alert-box">
+                <p>✉️ This is your official notification for your compartment examination. Please save this for your records.</p>
+            </div>
+            
+            <p>Your compartment examination has been scheduled as follows:</p>
+            
+            <div class="exam-info">
+                <h3>📍 Exam Schedule</h3>
+                <div class="info-row">
+                    <span class="label">Date:</span>
+                    <span class="value exam-date-value">{{ exam_date }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="label">Time:</span>
+                    <span class="value">{{ exam_time }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="label">Duration:</span>
+                    <span class="value">As per university guidelines</span>
+                </div>
+            </div>
+            
+            <div class="subject-info">
+                <h3>Subject Details</h3>
+                <div class="info-row">
+                    <span class="label">Subject Code:</span>
+                    <span class="value">{{ subject_code }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="label">Subject Name:</span>
+                    <span class="value">{{ subject_name }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="label">Registration ID:</span>
+                    <span class="value">{{ student_id }}</span>
+                </div>
+            </div>
+            
+            <div class="prep-section">
+                <h4>📚 Exam Preparation Checklist</h4>
+                <ul class="prep-list">
+                    <li>Review all course materials and notes</li>
+                    <li>Practice with previous year question papers</li>
+                    <li>Solve sample problems and assignments</li>
+                    <li>Focus on topics marked as important</li>
+                    <li>Get adequate rest before the exam</li>
+                    <li>Arrive at the exam center 15 minutes early</li>
+                    <li>Bring your admit card and valid ID</li>
+                </ul>
+            </div>
+            
+            <div class="important-notes">
+                <h4>⚠️ Important Notes</h4>
+                <ul>
+                    <li><strong>Venue:</strong> Check your admit card or portal for exam venue details</li>
+                    <li><strong>Timing:</strong> Do not be late. Gates close 10 minutes before exam start</li>
+                    <li><strong>Materials:</strong> Only approved calculators and stationery allowed</li>
+                    <li><strong>Contact:</strong> In case of emergency, contact the Academic Office</li>
+                    <li><strong>Results:</strong> Will be published within 2 weeks of exam</li>
+                </ul>
+            </div>
+            
+            <p style="color: #666; font-size: 14px; text-align: center;">
+                For any clarifications regarding the exam, please contact us at 
+                <a href="mailto:{{ support_email }}" class="support-contact">{{ support_email }}</a>
+            </p>
+        </div>
+        
+        <div class="footer">
+            <p>© {{ current_year }} ATAS - Academic Tracking and Alert System</p>
+            <p>This is an automated email. Please do not reply to this address.</p>
+        </div>
+    </div>
+</body>
+</html>

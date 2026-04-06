@@ -100,6 +100,61 @@ AcademicTrackingandAlertSystem/
     └── js/              # JavaScript files
 ```
 
+## 🔬 OCR Processing Pipeline
+
+### Overview
+ATAS includes a specialized **KU (Kathmandu University) Report Parser** that accurately extracts:
+- **Student Name:** From "Name" labels with text normalization
+- **Semester:** Supports multiple semester indicators (Semester: X, Sem: X, Year: X)
+- **GPA:** Recognizes 6 different GPA formats including failure markers (X, F)
+- **Failed Subjects:** Subject codes (CS101, MATH304, etc.) paired with failure grades
+
+### Supported Failure Grades
+- `F` - Direct failure
+- `(F)` - Parenthesized failure
+- `INC` - Incomplete
+- `FAIL` - Full word failure
+- `X` - GPA failure marker
+
+### Subject Code Patterns
+Automatically detects: `CS101`, `MATH304`, `IT102`, `ALGO301`, etc.
+- Pattern: 2-4 letter code + 2-4 digit number
+- Case-sensitive extraction
+
+### Multi-Semester Support
+- Students can have **multiple compartments from different semesters**
+- Database allows same subject to be failed in different semesters
+- Each compartment record stores:
+  - Semester of failure
+  - GPA at time of failure
+  - Timestamp of record creation
+
+### Example Extraction
+```
+Input Transcript:
+  Name: JOHN DOE
+  Semester: 3
+  GPA: 2.5
+  Failed: CS101(F), IT102(F), ALGO301(INC)
+
+Output JSON:
+{
+  "name": "JOHN DOE",
+  "semester": 3,
+  "gpa": "2.5",
+  "failed_subjects": ["CS101", "IT102", "ALGO301"],
+  "is_failing": true,
+  "extraction_confidence": {
+    "name": "high",
+    "gpa": "high",
+    "subjects": "high",
+    "semester": "high"
+  }
+}
+```
+
+For detailed OCR implementation notes, see [OCR_IMPLEMENTATION_NOTES.md](OCR_IMPLEMENTATION_NOTES.md).
+
 ## 🎯 Usage
 
 ### Admin Dashboard

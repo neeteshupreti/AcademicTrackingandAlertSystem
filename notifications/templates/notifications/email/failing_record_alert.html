@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body { font-family: Arial, sans-serif; color: #333; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background-color: #dc3545; color: white; padding: 20px; border-radius: 5px 5px 0 0; }
+        .content { background-color: #f9f9f9; padding: 20px; border: 1px solid #ddd; }
+        .subject-item { background-color: white; padding: 15px; margin: 10px 0; border-left: 4px solid #dc3545; }
+        .subject-code { font-weight: bold; color: #dc3545; }
+        .footer { background-color: #f0f0f0; padding: 15px; border-radius: 0 0 5px 5px; text-align: center; font-size: 12px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h2>Alert: Failed Subjects</h2>
+        </div>
+
+        <div class="content">
+            <p>Dear {{ student_name }},</p>
+
+            <p>This is to inform you that you have the following failed subjects in your academic record:</p>
+
+            {% for subject in failed_subjects %}
+                <div class="subject-item">
+                    <p><span class="subject-code">{{ subject.code }}</span></p>
+                    <p>
+                        <strong>Subject:</strong> {{ subject.name }}<br>
+                        <strong>Year:</strong> {{ subject.year }}<br>
+                        <strong>Semester:</strong> {{ subject.semester }}<br>
+                        <strong>Grade:</strong> {{ subject.grade }}
+                    </p>
+                </div>
+            {% endfor %}
+
+            {% if custom_message %}
+                <div style="background-color: #e7f3ff; padding: 15px; border-left: 4px solid #2196F3; margin-top: 20px;">
+                    <strong>Additional Information:</strong>
+                    <p>{{ custom_message }}</p>
+                </div>
+            {% endif %}
+
+            <p style="margin-top: 20px; color: #666;">
+                For more information or to view your complete academic record, please log into the ATAS portal.
+            </p>
+        </div>
+
+        <div class="footer">
+            <p>ATAS - Academic Tracking and Alert System</p>
+            <p>Kathmandu University</p>
+        </div>
+    </div>
+</body>
+</html>

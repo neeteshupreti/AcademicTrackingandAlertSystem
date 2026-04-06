@@ -48,7 +48,7 @@
             <tbody>
                 {% for record in records %}
                 <tr>
-                    <td class="ps-4"><code>#{{ record.student.student_id }}</code></td>
+                    <td class="ps-4"><code>{{ record.student.registration_number }}</code></td>
                     <td class="fw-bold">{{ record.student.name }}</td>
                     <td>{{ record.subject_name }}</td>
                     <td><span class="text-danger fw-bold">{{ record.grade }}</span></td>

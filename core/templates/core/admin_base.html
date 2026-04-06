@@ -41,6 +41,23 @@
                         <span>Academic Tracking</span>
                     </a>
                 </li>
+                <li class="navbar-menu-item navbar-menu-dropdown" id="alertsDropdown">
+                    <button class="navbar-menu-link navbar-dropdown-toggle {% if request.resolver_match.url_name in 'send_bulk_alerts,send_quick_alert' %}active{% endif %}" onclick="toggleAlertDropdown(event)">
+                        <i class="bi bi-bell-fill"></i>
+                        <span>Alerts</span>
+                        <i class="bi bi-chevron-down navbar-dropdown-icon"></i>
+                    </button>
+                    <div class="navbar-dropdown-menu" id="alertDropdownMenu">
+                        <a href="{% url 'send_bulk_alerts' %}" class="navbar-dropdown-item {% if request.resolver_match.url_name == 'send_bulk_alerts' %}active{% endif %}">
+                            <i class="bi bi-megaphone"></i>
+                            <span>Bulk Alerts</span>
+                        </a>
+                        <a href="{% url 'send_quick_alert' %}" class="navbar-dropdown-item {% if request.resolver_match.url_name == 'send_quick_alert' %}active{% endif %}">
+                            <i class="bi bi-lightning-charge"></i>
+                            <span>Quick Alert</span>
+                        </a>
+                    </div>
+                </li>
             </nav>
             {% endif %}
             
@@ -88,6 +105,30 @@
     </div>
 
     <script src="{% static 'js/main.js' %}"></script>
+    
+    <script>
+        // Toggle Alerts dropdown menu
+        function toggleAlertDropdown(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            const dropdown = document.getElementById('alertsDropdown');
+            const menu = document.getElementById('alertDropdownMenu');
+            
+            // Toggle the active class
+            dropdown.classList.toggle('active');
+        }
+        
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(event) {
+            const dropdown = document.getElementById('alertsDropdown');
+            const menu = document.getElementById('alertDropdownMenu');
+            
+            if (!dropdown.contains(event.target)) {
+                dropdown.classList.remove('active');
+            }
+        });
+    </script>
+    
     {% block extra_js %}{% endblock %}
 </body>
 </html>

@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            color: #333;
+            line-height: 1.6;
+        }
+        .email-container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f8fafc;
+        }
+        .header {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 8px 8px 0 0;
+            text-align: center;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+        .content {
+            background: white;
+            padding: 30px;
+            border-radius: 0 0 8px 8px;
+            border: 1px solid #e2e8f0;
+        }
+        .alert-box {
+            background: #fee2e2;
+            border-left: 4px solid #ef4444;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        .alert-box strong {
+            color: #991b1b;
+        }
+        .info-section {
+            background: #f1f5f9;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 15px 0;
+        }
+        .info-section label {
+            font-weight: 600;
+            color: #475569;
+            display: block;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 5px;
+        }
+        .info-section .value {
+            color: #1e293b;
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+        .subjects-list {
+            list-style: none;
+            padding: 0;
+            margin: 10px 0;
+        }
+        .subjects-list li {
+            background: white;
+            padding: 10px;
+            margin: 5px 0;
+            border-left: 3px solid #ef4444;
+            color: #991b1b;
+            font-weight: 500;
+        }
+        .button {
+            display: inline-block;
+            background: #3b82f6;
+            color: white;
+            padding: 12px 24px;
+            text-decoration: none;
+            border-radius: 4px;
+            margin-top: 20px;
+            font-weight: 600;
+        }
+        .footer {
+            text-align: center;
+            color: #64748b;
+            font-size: 12px;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #e2e8f0;
+        }
+        .footer a {
+            color: #3b82f6;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <div class="header">
+            <h1>Academic Alert</h1>
+            <p style="margin: 10px 0 0 0; opacity: 0.9;">Important Information About Your Exam Results</p>
+        </div>
+
+        <div class="content">
+            <p>Dear <strong>{{ student_name }}</strong>,</p>
+
+            <p>We are writing to inform you about your recent exam performance. Please review the details below carefully.</p>
+
+            <div class="alert-box">
+                <strong>⚠️ Action Required</strong>
+                <p style="margin: 10px 0 0 0;">You have been identified for <strong>Compartment Examination</strong>. This means you need to appear for a supplementary exam in the failed subject(s) listed below.</p>
+            </div>
+
+            <div class="info-section">
+                <label>Student ID</label>
+                <div class="value">{{ student_id }}</div>
+
+                <label>Current GPA</label>
+                <div class="value">
+                    {% if gpa == "X" %}
+                        <strong style="color: #ef4444;">Not Calculated (Failed in critical subjects)</strong>
+                    {% else %}
+                        {{ gpa }}
+                    {% endif %}
+                </div>
+
+                <label>Failed Subjects - Compartment Required</label>
+                <ul class="subjects-list">
+                    {% for subject in failed_subjects %}
+                        <li>{{ subject }}</li>
+                    {% empty %}
+                        <li>No specific subjects listed</li>
+                    {% endfor %}
+                </ul>
+            </div>
+
+            <h3 style="color: #1e293b; margin-top: 25px;">Next Steps:</h3>
+            <ol style="color: #475569; line-height: 1.8;">
+                <li><strong>Register for Compartment Exam:</strong> Visit the examination portal to register within the deadline</li>
+                <li><strong>Review Course Material:</strong> Study the failed subject thoroughly before your exam</li>
+                <li><strong>Attend Coaching Sessions:</strong> Take advantage of any remedial classes offered by the department</li>
+                <li><strong>Contact Your Instructor:</strong> Reach out to faculty members if you need additional guidance</li>
+            </ol>
+
+            <div style="background: #dbeafe; padding: 15px; border-radius: 4px; margin: 20px 0; border-left: 4px solid #3b82f6;">
+                <strong style="color: #1e40af;">📞 Need Help?</strong>
+                <p style="margin: 10px 0 0 0; color: #1e40af;">Contact the Academic Affairs Office or email us at <a href="mailto:{{ support_email }}" style="color: #1e40af; text-decoration: underline;">{{ support_email }}</a></p>
+            </div>
+
+            <p style="margin-top: 25px; color: #64748b;">Best regards,<br><strong>Academic Tracking & Alert System</strong><br>University Administration</p>
+        </div>
+
+        <div class="footer">
+            <p>This is an automated message. Please do not reply to this email.</p>
+            <p>For support, contact: <a href="mailto:{{ support_email }}">{{ support_email }}</a></p>
+        </div>
+    </div>
+</body>
+</html>
