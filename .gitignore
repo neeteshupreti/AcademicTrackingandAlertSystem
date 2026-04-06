@@ -1,6 +1,10 @@
 venv/
 __pycache__/
 db.sqlite3
+# Environment variables
+.env
+.env.local
+.env.*.local
 # Ignore all markdown files except README.md
 *.md
 !README.md
